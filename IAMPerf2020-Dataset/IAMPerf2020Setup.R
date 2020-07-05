@@ -8,6 +8,9 @@
 
 print("Loading the IAMPerf2020 environment...");
 
+# Packages
+if(!require("RCurl")) install.packages("RCurl");
+
 # Configuration options
 iamperf2020_data_url = "https://raw.githubusercontent.com/Open-Measure/Open-Data/master/IAMPerf2020-Dataset/";
 iamperf2020_survey_url = paste0(iamperf2020_data_url, "IAMPerf2020.csv");
