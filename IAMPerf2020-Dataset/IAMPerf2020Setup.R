@@ -23,6 +23,7 @@ iamperf2020_q23_priorities_url = paste0(iamperf2020_data_url, "IAMPerf2020Q23Pri
 
 # Load the data
 iamperf2020_survey <- read.csv (text = RCurl::getURL(iamperf2020_survey_url));
+iamperf2020_q9_countries <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q9Countries")));
 iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(iamperf2020_q20_domains_url));
 iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(iamperf2020_q20_team_dedication_url))
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(iamperf2020_q23_goals_url));
