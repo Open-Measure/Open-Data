@@ -1,4 +1,4 @@
-Country Code,Country Name,Country ISO 2 Letters Code
+CountryCode,CountryName,CountryISO2
 1,Afghanistan,AF
 2,Albania,AL
 3,Algeria,DZ
@@ -40,7 +40,7 @@ Country Code,Country Name,Country ISO 2 Letters Code
 39,Democratic Republic of the Congo,CD
 40,Republic of the Congo,CG
 41,Costa Rica,CR
-42,Côte d'Ivoire,CI
+42,Ivory Coast,CI
 43,Croatia,HR
 44,Cuba,CU
 45,Cyprus,CY
@@ -49,7 +49,7 @@ Country Code,Country Name,Country ISO 2 Letters Code
 48,Djibouti,DJ
 49,Dominica,DM
 50,Dominican Republic,DO
-51,East Timor (Timor-Leste),TL
+51,East Timor,TL
 52,Ecuador,EC
 53,Egypt,EG
 54,El Salvador,SV
