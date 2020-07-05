@@ -14,8 +14,8 @@ if(!require("RCurl")) install.packages("RCurl");
 # Configuration options
 iamperf2020_data_url = "https://raw.githubusercontent.com/Open-Measure/Open-Data/master/IAMPerf2020-Dataset/";
 iamperf2020_survey_url = paste0(iamperf2020_data_url, "IAMPerf2020.csv");
-iamperf2020_q20_domains_url = paste0(github_folder_url, "IAMPerf2020Q20Domains.csv");
-iamperf2020_q20_team_dedication_url = paste0(github_folder_url, "IAMPerf2020Q20TeamDedication.csv");
+iamperf2020_q20_domains_url = paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv");
+iamperf2020_q20_team_dedication_url = paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv");
 iamperf2020_q23_goals_url = paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv");
 iamperf2020_q23_priorities_url = paste0(iamperf2020_data_url, "IAMPerf2020Q23Priorities.csv");
 
