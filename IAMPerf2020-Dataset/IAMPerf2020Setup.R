@@ -2,6 +2,12 @@
 # would have been an overkill. To keep things simpler, I chose to store reusable
 # functions in this R script and load it from GitHub with the devtools package.
 
+# Some will noti# ce I don't load libraries. Instead, I prefer to use the unambiguous
+# syntax *package::function*. This makes the code slightly harsher to read but this
+# is a price I am pleased to pay. 
+
+print("Loading the IAMPerf2020 environment...");
+
 # Configuration options
 iamperf2020_data_url = "https://raw.githubusercontent.com/Open-Measure/Open-Data/master/IAMPerf2020-Dataset/";
 iamperf2020_survey_url = paste0(iamperf2020_data_url, "IAMPerf2020.csv");
@@ -26,3 +32,4 @@ iamperf2020_data$Q23R9 = factor(iamperf2020_data$Q23R9, levels = iamperf2020_q23
 iamperf2020_data$Q23R10 = factor(iamperf2020_data$Q23R10, levels = iamperf2020_q23_priorities$X, labels = iamperf2020_q23_priorities$Title, ordered = TRUE, exclude = NA);
 iamperf2020_data$Q23R11 = factor(iamperf2020_data$Q23R11, levels = iamperf2020_q23_priorities$X, labels = iamperf2020_q23_priorities$Title, ordered = TRUE, exclude = NA);
 
+print("IAMPerf2020 environment loaded.")
