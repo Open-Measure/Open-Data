@@ -29,6 +29,10 @@ iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(iamperf2020_q2
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(iamperf2020_q23_goals_url));
 iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(iamperf2020_q23_priorities_url))
 
+# Q9: Apply nicely labeled and properly unordered factors.
+iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
+iamperf2020_survey$Q9B = factor(iamperf2020_survey$Q9B, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
+
 # Q20: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q20R2 = factor(iamperf2020_survey$Q20R2, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
