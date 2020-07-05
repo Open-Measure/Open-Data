@@ -37,8 +37,8 @@ Country Code,Country Name,Country ISO 2 Letters Code
 36,China,CN
 37,Colombia,CO
 38,Comoros,KM
-39,Congo, Democratic Republic of the,CD
-40,Congo, Republic of the,CG
+39,Democratic Republic of the Congo,CD
+40,Republic of the Congo,CG
 41,Costa Rica,CR
 42,Côte d’Ivoire,CI
 43,Croatia,HR
@@ -50,23 +50,23 @@ Country Code,Country Name,Country ISO 2 Letters Code
 49,Dominica,DM
 50,Dominican Republic,DO
 51,East Timor (Timor-Leste),TL
-52,Ecuador,#N/A
-53,Egypt,#N/A
-54,El Salvador,#N/A
-55,Equatorial Guinea,#N/A
-56,Eritrea,#N/A
-57,Estonia,#N/A
-58,Ethiopia,#N/A
-59,Fiji,#N/A
-60,Finland,#N/A
-61,France,#N/A
-62,Gabon,#N/A
+52,Ecuador,EC
+53,Egypt,EG
+54,El Salvador,SV
+55,Equatorial Guinea,GQ
+56,Eritrea,ER
+57,Estonia,ES
+58,Ethiopia,ET
+59,Fiji,FJ
+60,Finland,FI
+61,France,FR
+62,Gabon,GA
 63,The Gambia,GM
-64,Georgia,#N/A
-65,Germany,#N/A
-66,Ghana,#N/A
-67,Greece,#N/A
-68,Grenada,#N/A
+64,Georgia,GE
+65,Germany,DE
+66,Ghana,GH
+67,Greece,GR
+68,Grenada,GD
 69,Guatemala,GT
 70,Guinea,GN
 71,Guinea-Bissau,GW
@@ -88,8 +88,8 @@ Country Code,Country Name,Country ISO 2 Letters Code
 87,Kazakhstan,KZ
 88,Kenya,KE
 89,Kiribati,KI
-90,Korea, North,KP
-91,Korea, South,KR
+90,North Korea,KP
+91,South Korea,KR
 92,Kosovo,XK
 93,Kuwait,KW
 94,Kyrgyzstan,KG
@@ -113,7 +113,7 @@ Country Code,Country Name,Country ISO 2 Letters Code
 112,Mauritania,MR
 113,Mauritius,MU
 114,Mexico,MX
-115,Micronesia, Federated States of,FM
+115,Micronesia,FM
 116,Moldova,MD
 117,Monaco,MC
 118,Mongolia,MN
@@ -164,7 +164,7 @@ Country Code,Country Name,Country ISO 2 Letters Code
 163,Spain,ES
 164,Sri Lanka,LK
 165,Sudan,SD
-166,Sudan, South,SS
+166,South Sudan,SS
 167,Suriname,SR
 168,Swaziland,SZ
 169,Sweden,SE
