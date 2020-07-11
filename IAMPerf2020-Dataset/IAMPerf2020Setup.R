@@ -15,23 +15,31 @@ if(!require("RColorBrewer")) install.packages("RColorBrewer");
 
 # Configuration options
 iamperf2020_data_url = "https://raw.githubusercontent.com/Open-Measure/Open-Data/master/IAMPerf2020-Dataset/";
-iamperf2020_survey_url = paste0(iamperf2020_data_url, "IAMPerf2020.csv");
-iamperf2020_q20_domains_url = paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv");
-iamperf2020_q20_team_dedication_url = paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv");
-iamperf2020_q23_goals_url = paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv");
-iamperf2020_q23_priorities_url = paste0(iamperf2020_data_url, "IAMPerf2020Q23Priorities.csv");
 
 # Load the data
-iamperf2020_survey <- read.csv (text = RCurl::getURL(iamperf2020_survey_url));
+iamperf2020_survey <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020.csv")));
 iamperf2020_q9_countries <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q9Countries.csv")));
-iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(iamperf2020_q20_domains_url));
-iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(iamperf2020_q20_team_dedication_url))
-iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(iamperf2020_q23_goals_url));
-iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(iamperf2020_q23_priorities_url))
+iamperf2020_q10_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q10Roles.csv")));
+iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv")));
+iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
+iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
+iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Priorities.csv")));
 
 # Q9: Apply nicely labeled and properly unordered factors.
 iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
 iamperf2020_survey$Q9B = factor(iamperf2020_survey$Q9B, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
+
+# Q10: Apply nicely labeled and properly unordered factors.
+for(q10_count in 1:nrow(iamperf2020_q10_roles)){
+  q10_column = as.character(iamperf2020_q10_roles[q10_count, "X"]);
+  q10_levels = c(1); # Single level :-)
+  q10_labels = as.character(iamperf2020_q10_roles[q10_count, "Title"]);
+  iamperf2020_survey[,q10_column] = factor(
+    iamperf2020_survey[,q10_column], 
+    levels = q10_levels, 
+    labels = q10_labels, 
+    ordered = FALSE, exclude = NA);
+};
 
 # Q20: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
