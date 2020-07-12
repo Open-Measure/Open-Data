@@ -30,6 +30,11 @@ iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_co
 iamperf2020_survey$Q9B = factor(iamperf2020_survey$Q9B, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
 
 # Q10: Apply nicely labeled and properly unordered factors.
+# Values will be NA or 1 (= I hold this role/position).
+# Factor labels are configured as the name of the role/position.
+# Q19A18 = Other (see Q19_O for the corresponding text values in the non-anonymized dataset).
+# Q19A19 = I don't know.
+# Because there are 19 columns, I use a loop to apply the configuration dynamically.
 for(q10_count in 1:nrow(iamperf2020_q10_roles)){
   q10_column = as.character(iamperf2020_q10_roles[q10_count, "X"]);
   q10_levels = c(1); # Single level :-)
