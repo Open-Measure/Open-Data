@@ -20,6 +20,7 @@ iamperf2020_data_url = "https://raw.githubusercontent.com/Open-Measure/Open-Data
 iamperf2020_survey <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020.csv")));
 iamperf2020_q9_countries <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q9Countries.csv")));
 iamperf2020_q10_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q10Roles.csv")));
+iamperf2020_q13_org_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q13OrgRoles.csv")));
 iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv")));
 iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
@@ -35,16 +36,29 @@ iamperf2020_survey$Q9B = factor(iamperf2020_survey$Q9B, levels = iamperf2020_q9_
 # Q19A18 = Other (see Q19_O for the corresponding text values in the non-anonymized dataset).
 # Q19A19 = I don't know.
 # Because there are 19 columns, I use a loop to apply the configuration dynamically.
-for(q10_count in 1:nrow(iamperf2020_q10_roles)){
-  q10_column = as.character(iamperf2020_q10_roles[q10_count, "X"]);
+for(column_counter in 1:nrow(iamperf2020_q10_roles)){
+  q10_column = as.character(iamperf2020_q10_roles[column_counter, "X"]);
   q10_levels = c(1); # Single level :-)
-  q10_labels = as.character(iamperf2020_q10_roles[q10_count, "Title"]);
+  q10_labels = as.character(iamperf2020_q10_roles[column_counter, "Title"]);
   iamperf2020_survey[,q10_column] = factor(
     iamperf2020_survey[,q10_column], 
     levels = q10_levels, 
     labels = q10_labels, 
     ordered = FALSE, exclude = NA);
 };
+
+#Q13 Organization
+for(column_counter in 1:nrow(iamperf2020_q13_XXX)){
+  q10_column = as.character(iamperf2020_q10_roles[column_counter, "X"]);
+  q10_levels = c(1); # Single level :-)
+  q10_labels = as.character(iamperf2020_q10_roles[column_counter, "Title"]);
+  iamperf2020_survey[,q10_column] = factor(
+    iamperf2020_survey[,q10_column], 
+    levels = q10_levels, 
+    labels = q10_labels, 
+    ordered = FALSE, exclude = NA);
+};
+
 
 # Q20: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
@@ -145,6 +159,59 @@ plot_pie_flavour_1 = function(
       subtitle = sub_title);
   
   return(pie_plot);
+}
+
+plot_upset = function(data_frame, title, subtitle, caption){
+  # Uses the UpSetR package to plot an Upset graph.
+  # This is ideal for the visualization of categorical data (or sets)
+  # when the number of categories is no longer supporder by
+  # Venn and Euler diagrams.
+  #
+  # Inputs:
+  # data_frame: expects a dataframe composed of columns,
+  # where every column is a category with a single level,
+  # where the factor is labelled with a "friendly" category name, 
+  # and where NA means "not selected".
+  #  
+  # References:
+  # - https://academic.oup.com/bioinformatics/article/33/18/2938/3884387
+  # - https://cran.r-project.org/web/packages/UpSetR/vignettes/basic.usage.html
+  #
+  #if(!require("ggplot2")) install.packages("ggplot2");
+  #if(!require("viridis")) install.packages("viridis");
+  if(!require("UpSetR")) install.packages("UpSetR");
+  #if(!require("ggstatsplot")) install.packages("ggstatsplot");
+  
+  # Retrieve the category full names from the factor labels.
+  friendly_categories = as.character(unlist(lapply(data_frame, levels))); 
+  
+  # Convert our data to a matrix of 0s and 1s.
+  data_frame = as.data.frame(ifelse(!is.na(data_frame),1,0));
+  
+  # Remove survey answers that have no option selected.
+  data_frame = data_frame[rowSums(data_frame) > 0,];
+  
+  # UpSetR::upset expects that column names are equal to friendly category names.
+  colnames(data_frame) = friendly_categories;
+  
+  # Remove categories that have never been used.
+  data_frame = data_frame[,colSums(data_frame) > 0];
+  
+  # Reduce categories to active categories,
+  # and sort categories by frequencies.
+  friendly_categories = names(sort(colSums(data_frame), decreasing = FALSE));
+  
+  # Plot the UpSet diagram.
+  upset_plot = UpSetR::upset(
+    data = data_frame, 
+    sets = friendly_categories,
+    nintersects = NA,
+  #  order.by = "freq",
+    mb.ratio = c(0.3, 0.7),
+    keep.order = TRUE,
+    set_size.show	= TRUE);
+  
+  upset_plot;
 }
 
 print("IAMPerf2020 environment loaded.")
