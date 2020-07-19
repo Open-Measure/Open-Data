@@ -20,6 +20,8 @@ iamperf2020_data_url = "https://raw.githubusercontent.com/Open-Measure/Open-Data
 iamperf2020_survey <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020.csv")));
 iamperf2020_q9_countries <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q9Countries.csv")));
 iamperf2020_q10_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q10Roles.csv")));
+iamperf2020_q11_experience_fields <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q11ExperienceFields.csv")));
+iamperf2020_q11_experience_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q11ExperienceLevels.csv")));
 iamperf2020_q13_org_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q13OrgRoles.csv")));
 iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv")));
 iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
@@ -30,35 +32,50 @@ iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(paste0(iamperf2020_
 iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
 iamperf2020_survey$Q9B = factor(iamperf2020_survey$Q9B, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
 
-# Q10: Apply nicely labeled and properly unordered factors.
+# Q10: Apply labeled and properly unordered factors.
 # Values will be NA or 1 (= I hold this role/position).
 # Factor labels are configured as the name of the role/position.
 # Q19A18 = Other (see Q19_O for the corresponding text values in the non-anonymized dataset).
 # Q19A19 = I don't know.
 # Because there are 19 columns, I use a loop to apply the configuration dynamically.
 for(column_counter in 1:nrow(iamperf2020_q10_roles)){
-  q10_column = as.character(iamperf2020_q10_roles[column_counter, "X"]);
-  q10_levels = c(1); # Single level :-)
-  q10_labels = as.character(iamperf2020_q10_roles[column_counter, "Title"]);
-  iamperf2020_survey[,q10_column] = factor(
-    iamperf2020_survey[,q10_column], 
-    levels = q10_levels, 
-    labels = q10_labels, 
+  current_column = as.character(iamperf2020_q10_roles[column_counter, "X"]);
+  current_levels = c(1); # Single level :-)
+  current_labels = as.character(iamperf2020_q10_roles[column_counter, "Title"]);
+  iamperf2020_survey[,current_column] = factor(
+    iamperf2020_survey[,current_column], 
+    levels = current_levels, 
+    labels = current_labels, 
+    ordered = FALSE, exclude = NA);
+};
+
+# Q11: Experience. 
+# Apply labeled and properly unordered factors.
+# Values 0...10 (integer) number of years.
+# Factor labels are configured as the name of the role/position.
+# Because there are 19 columns, I use a loop to apply the configuration dynamically.
+for(column_counter in 1:nrow(iamperf2020_q11_roles)){
+  current_column = as.character(iamperf2020_q11_roles[column_counter, "X"]);
+  current_levels = c(1); # Single level :-)
+  current_labels = as.character(iamperf2020_q11_roles[column_counter, "Title"]);
+  iamperf2020_survey[,current_column] = factor(
+    iamperf2020_survey[,current_column], 
+    levels = current_levels, 
+    labels = current_labels, 
     ordered = FALSE, exclude = NA);
 };
 
 #Q13 Organization
-for(column_counter in 1:nrow(iamperf2020_q13_XXX)){
-  q10_column = as.character(iamperf2020_q10_roles[column_counter, "X"]);
-  q10_levels = c(1); # Single level :-)
-  q10_labels = as.character(iamperf2020_q10_roles[column_counter, "Title"]);
-  iamperf2020_survey[,q10_column] = factor(
-    iamperf2020_survey[,q10_column], 
-    levels = q10_levels, 
-    labels = q10_labels, 
+for(column_counter in 1:nrow(iamperf2020_q13_org_roles)){
+  current_column = as.character(iamperf2020_q13_org_roles[column_counter, "X"]);
+  current_levels = c(1); # Single level :-)
+  current_labels = as.character(iamperf2020_q13_org_roles[column_counter, "Title"]);
+  iamperf2020_survey[,current_column] = factor(
+    iamperf2020_survey[,current_column], 
+    levels = current_levels, 
+    labels = current_labels, 
     ordered = FALSE, exclude = NA);
 };
-
 
 # Q20: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
@@ -159,6 +176,76 @@ plot_pie_flavour_1 = function(
       subtitle = sub_title);
   
   return(pie_plot);
+}
+
+plot_bars = function(
+  title = NULL,
+  subtitle = NULL,
+  axis_x_title = NULL,
+  axis_y_title = NULL,
+  remove_na = TRUE,
+  data_series_1, # A factorized vector or dataframe. 
+  series_name_1 = "",
+  data_series_2 = NULL,
+  series_name_2 = "",
+  legend_title = NULL
+){
+  
+  get_plot_data = function(data_series, series_name = ""){
+    data_series = as.vector(unlist(data_series)); # Coerce to a single vector.
+    if(remove_na) data_series_1 = data_series[!is.na(data_series)]; # Remove NAs if applicable.
+    data_table = table(data_series);
+    data_count_label = paste("(", data_table, ")", sep = "");
+    data_category = names(data_table);
+    data_frequency = prop.table(data_table);
+    data_frequency_label = paste(rounded_ratios_with_largest_remainder(data_frequency, digits = 1), "%");
+    data_label = paste(data_frequency_label, data_count_label, sep = " ");
+    data_count = as.vector(data_table);
+    return(
+      data.frame(
+        category = data_category,
+        count = data_count,
+        label = data_label,
+        group = rep(series_name, length(data_count))
+      ));
+  }
+  
+  plot_data = get_plot_data(data_series_1, series_name_1);
+  if(!is.null(data_series_2)){
+    plot_data = rbind(plot_data, get_plot_data(data_series_2, series_name_2));
+  };
+  
+  plot_object = ggplot2::ggplot(
+    data = plot_data, 
+    ggplot2::aes(
+      y = reorder(category, count),
+      x = count,
+      fill = group),
+  ) + ggplot2::geom_bar(
+    stat="identity",
+    position = ggplot2::position_dodge(),
+    colour = "black"
+  ) + ggplot2::geom_text(
+    ggplot2::aes(
+      family = "",
+      label = label, 
+      size = .8), 
+    position = ggplot2::position_dodge(width = 1), 
+    hjust = -0.1
+  #) + ggplot2::geom_label(
+  #  ggplot2::aes(label = label, size = .4), 
+  #  position = ggplot2::position_dodge(width = 1), 
+  #  hjust = -0.1,
+  #  fill = "white",
+  #  alpha = .8
+  ) + ggplot2::labs(
+      title = title,
+      subtitle = subtitle,
+      fill = legend_title,
+      x = axis_x_title,
+      y = axis_y_title
+  ) + ggplot2::theme(legend.position = "bottom");
+  return(plot_object);
 }
 
 plot_upset = function(data_frame, title, subtitle, caption){
