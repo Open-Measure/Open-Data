@@ -2,7 +2,7 @@
 # would have been an overkill. To keep things simpler, I chose to store reusable
 # functions in this R script and load it from GitHub with the devtools package.
 
-# Some will noti# ce I don't load libraries. Instead, I prefer to use the unambiguous
+# Some will notice I don't load libraries. Instead, I prefer to use the unambiguous
 # syntax *package::function*. This makes the code slightly harsher to read but this
 # is a price I am pleased to pay. 
 
@@ -10,6 +10,10 @@ print("Loading the IAMPerf2020 environment...");
 
 # Packages
 if(!require("RCurl")) install.packages("RCurl");
+if(!require("htmltools")) install.packages("htmltools");
+if(!require("scales")) install.packages("scales");
+if(!require("likert")) install.packages("likert");
+#if(!require("HH")) install.packages("HH");
 if(!require("ggplot2")) install.packages("ggplot2");
 if(!require("RColorBrewer")) install.packages("RColorBrewer");
 
@@ -51,18 +55,16 @@ for(column_counter in 1:nrow(iamperf2020_q10_roles)){
 
 # Q11: Experience. 
 # Apply labeled and properly unordered factors.
-# Values 0...10 (integer) number of years.
-# Factor labels are configured as the name of the role/position.
-# Because there are 19 columns, I use a loop to apply the configuration dynamically.
-for(column_counter in 1:nrow(iamperf2020_q11_roles)){
-  current_column = as.character(iamperf2020_q11_roles[column_counter, "X"]);
-  current_levels = c(1); # Single level :-)
-  current_labels = as.character(iamperf2020_q11_roles[column_counter, "Title"]);
+# Integer values 0 (no experience) ... 10+ (veteran) = number of years.
+for(column_counter in 1:nrow(iamperf2020_q11_experience_fields)){
+  current_column = as.character(iamperf2020_q11_experience_fields[column_counter, "X"]);
+  current_levels = iamperf2020_q11_experience_levels$X;
+  current_labels = iamperf2020_q11_experience_levels$Title;
   iamperf2020_survey[,current_column] = factor(
     iamperf2020_survey[,current_column], 
     levels = current_levels, 
     labels = current_labels, 
-    ordered = FALSE, exclude = NA);
+    ordered = TRUE, exclude = NA);
 };
 
 #Q13 Organization
