@@ -27,6 +27,7 @@ iamperf2020_q10_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_
 iamperf2020_q11_experience_fields <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q11ExperienceFields.csv")));
 iamperf2020_q11_experience_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q11ExperienceLevels.csv")));
 iamperf2020_q13_org_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q13OrgRoles.csv")));
+iamperf2020_q14_org_targets <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q14OrgTargets.csv")));
 iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv")));
 iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
@@ -37,11 +38,6 @@ iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_co
 iamperf2020_survey$Q9B = factor(iamperf2020_survey$Q9B, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
 
 # Q10: Apply labeled and properly unordered factors.
-# Values will be NA or 1 (= I hold this role/position).
-# Factor labels are configured as the name of the role/position.
-# Q19A18 = Other (see Q19_O for the corresponding text values in the non-anonymized dataset).
-# Q19A19 = I don't know.
-# Because there are 19 columns, I use a loop to apply the configuration dynamically.
 for(column_counter in 1:nrow(iamperf2020_q10_roles)){
   current_column = as.character(iamperf2020_q10_roles[column_counter, "X"]);
   current_levels = c(1); # Single level :-)
@@ -78,6 +74,25 @@ for(column_counter in 1:nrow(iamperf2020_q13_org_roles)){
     labels = current_labels, 
     ordered = FALSE, exclude = NA);
 };
+
+#Q14 Org Target
+iamperf2020_survey$Q14 = factor(
+  iamperf2020_survey$Q14, 
+  levels = as.integer(iamperf2020_q14_org_targets$X), 
+  labels = as.character(iamperf2020_q14_org_targets$Title), 
+  ordered = FALSE, exclude = NA);
+
+#Q15 Last Work Year
+# Retrieve and sort the unique years from Q15 answers
+q15_years = sort(unique(iamperf2020_survey$Q15[!is.na(iamperf2020_survey$Q15)]));
+iamperf2020_survey$Q15 = factor(
+  iamperf2020_survey$Q15, 
+  labels = q15_years, 
+  ordered = TRUE, exclude = NA);
+
+# Q16: Textual Information
+
+
 
 # Q20: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
