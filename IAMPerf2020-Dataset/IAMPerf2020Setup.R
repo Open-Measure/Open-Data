@@ -59,7 +59,7 @@ for(column_counter in 1:nrow(iamperf2020_q10_roles)){
 for(column_counter in 1:nrow(iamperf2020_q11_experience_fields)){
   current_column = as.character(iamperf2020_q11_experience_fields[column_counter, "X"]);
   current_levels = iamperf2020_q11_experience_levels$X;
-  current_labels = iamperf2020_q11_experience_levels$Title;
+  current_labels = as.character(iamperf2020_q11_experience_levels$Title);
   iamperf2020_survey[,current_column] = factor(
     iamperf2020_survey[,current_column], 
     levels = current_levels, 
