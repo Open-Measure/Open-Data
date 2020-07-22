@@ -216,6 +216,10 @@ plot_bars = function(
   series_name_1 = "",
   data_series_2 = NULL,
   series_name_2 = "",
+  data_series_3 = NULL,
+  series_name_3 = "",
+  data_series_4 = NULL,
+  series_name_4 = "",
   legend_title = NULL
 ){
   
@@ -242,7 +246,7 @@ plot_bars = function(
   if(!is.null(data_series_2)){
     plot_data = rbind(plot_data, get_plot_data(data_series_2, series_name_2));
   };
-  
+
   plot_object = ggplot2::ggplot(
     data = plot_data, 
     ggplot2::aes(
@@ -272,6 +276,48 @@ plot_bars = function(
       fill = legend_title,
       x = axis_x_title,
       y = axis_y_title
+  ) + ggplot2::theme(legend.position = "bottom");
+  return(plot_object);
+}
+
+plot_stack_count = function(
+  title = NULL,
+  subtitle = NULL,
+  axis_x_title = NULL,
+  axis_y_title = NULL,
+  remove_na = TRUE,
+  data_series = NULL, # data.frame with columns "group", "category", "value".
+  legend_title = NULL
+){
+  
+  plot_object = ggplot2::ggplot(
+    data = plot_data, 
+    ggplot2::aes(
+      y = reorder(group, category),
+      x = count,
+      fill = category),
+  ) + ggplot2::geom_bar(
+    stat="identity",
+    position = ggplot2::position_stack(),
+    colour = "black"
+  ) + ggplot2::geom_text(
+    ggplot2::aes(
+      family = "",
+      label = label, 
+      size = .8), 
+    position = ggplot2::position_stack()
+    #) + ggplot2::geom_label(
+    #  ggplot2::aes(label = label, size = .4), 
+    #  position = ggplot2::position_dodge(width = 1), 
+    #  hjust = -0.1,
+    #  fill = "white",
+    #  alpha = .8
+  ) + ggplot2::labs(
+    title = title,
+    subtitle = subtitle,
+    fill = legend_title,
+    x = axis_x_title,
+    y = axis_y_title
   ) + ggplot2::theme(legend.position = "bottom");
   return(plot_object);
 }
