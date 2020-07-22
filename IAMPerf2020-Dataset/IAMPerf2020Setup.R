@@ -28,6 +28,7 @@ iamperf2020_q11_experience_fields <- read.csv (text = RCurl::getURL(paste0(iampe
 iamperf2020_q11_experience_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q11ExperienceLevels.csv")));
 iamperf2020_q13_org_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q13OrgRoles.csv")));
 iamperf2020_q14_org_targets <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q14OrgTargets.csv")));
+iamperf2020_q17_industrial_sectors <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q17IndustrialSectors.csv")));
 iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv")));
 iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
@@ -92,7 +93,17 @@ iamperf2020_survey$Q15 = factor(
 
 # Q16: Textual Information
 
-
+# Q17: Industrial Sector
+for(column_counter in 1:nrow(iamperf2020_q17_industrial_sectors)){
+  current_column = as.character(iamperf2020_q17_industrial_sectors[column_counter, "X"]);
+  current_levels = c(1); # Single level :-)
+  current_labels = as.character(iamperf2020_q17_industrial_sectors[column_counter, "Title"]);
+  iamperf2020_survey[,current_column] = factor(
+    iamperf2020_survey[,current_column], 
+    levels = current_levels, 
+    labels = current_labels, 
+    ordered = FALSE, exclude = NA);
+};
 
 # Q20: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
