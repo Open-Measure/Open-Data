@@ -29,6 +29,7 @@ iamperf2020_q11_experience_levels <- read.csv (text = RCurl::getURL(paste0(iampe
 iamperf2020_q13_org_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q13OrgRoles.csv")));
 iamperf2020_q14_org_targets <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q14OrgTargets.csv")));
 iamperf2020_q17_industrial_sectors <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q17IndustrialSectors.csv")));
+iamperf2020_q18_org_sizes <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q18OrgSizes.csv")));
 iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv")));
 iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
@@ -104,6 +105,15 @@ for(column_counter in 1:nrow(iamperf2020_q17_industrial_sectors)){
     labels = current_labels, 
     ordered = FALSE, exclude = NA);
 };
+
+# Q18: Organization Size
+iamperf2020_survey$Q18 = factor(
+  iamperf2020_survey$Q18, 
+  levels = as.integer(iamperf2020_q18_org_sizes$X), 
+  labels = as.character(iamperf2020_q18_org_sizes$Title), 
+  ordered = TRUE, exclude = NA);
+
+# Q19: Textual Information (not a question)
 
 # Q20: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
@@ -252,8 +262,10 @@ plot_bars = function(
     ggplot2::aes(
       y = reorder(category, count),
       x = count,
-      fill = group),
-  ) + ggplot2::geom_bar(
+      fill = group)
+  ) +
+  scale_fill_brewer(palette = "Accent") +
+  ggplot2::geom_bar(
     stat="identity",
     position = ggplot2::position_dodge(),
     colour = "black"
