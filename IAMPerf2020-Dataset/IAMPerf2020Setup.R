@@ -312,7 +312,8 @@ plot_stack_count = function(
     stat="identity",
     position = ggplot2::position_stack(),
     colour = "black"
-  ) + ggplot2::geom_text(
+  ) + 
+    ggplot2::geom_text(
     ggplot2::aes(
       family = "",
       label = label, 
@@ -382,7 +383,10 @@ plot_upset = function(data_frame, title, subtitle, caption){
   #  order.by = "freq",
     mb.ratio = c(0.3, 0.7),
     keep.order = TRUE,
-    set_size.show	= TRUE);
+    set_size.show	= TRUE) +
+    scale_colour_brewer(
+      palette = "YlGnBu", 
+      direction = -1);
   
   upset_plot;
 }
