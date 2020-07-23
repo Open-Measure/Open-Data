@@ -32,6 +32,8 @@ iamperf2020_q17_industrial_sectors <- read.csv (text = RCurl::getURL(paste0(iamp
 iamperf2020_q18_org_sizes <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q18OrgSizes.csv")));
 iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv")));
 iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
+iamperf2020_q21_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q21Domains.csv")));
+iamperf2020_q21_centralization <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q21Centralization.csv")));
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
 iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Priorities.csv")));
 
@@ -115,13 +117,21 @@ iamperf2020_survey$Q18 = factor(
 
 # Q19: Textual Information (not a question)
 
-# Q20: Apply nicely labeled and properly ordered factors.
+# Q20: Team Dedication.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q20R2 = factor(iamperf2020_survey$Q20R2, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q20R3 = factor(iamperf2020_survey$Q20R3, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q20R4 = factor(iamperf2020_survey$Q20R4, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q20R5 = factor(iamperf2020_survey$Q20R5, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q20R6 = factor(iamperf2020_survey$Q20R6, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
+
+# Q21: Centralization.
+iamperf2020_survey$Q21R1 = factor(iamperf2020_survey$Q21R1, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q21R2 = factor(iamperf2020_survey$Q21R2, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q21R3 = factor(iamperf2020_survey$Q21R3, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q21R4 = factor(iamperf2020_survey$Q21R4, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q21R5 = factor(iamperf2020_survey$Q21R5, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q21R6 = factor(iamperf2020_survey$Q21R6, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
 
 # Q23: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q23R1 = factor(iamperf2020_survey$Q23R1, levels = iamperf2020_q23_priorities$X, labels = iamperf2020_q23_priorities$Title, ordered = TRUE, exclude = NA);
@@ -216,6 +226,7 @@ plot_pie_flavour_1 = function(
   return(pie_plot);
 }
 
+if(!require("ggrepel")) install.packages("ggrepel");
 plot_bars = function(
   title = NULL,
   subtitle = NULL,
@@ -230,7 +241,7 @@ plot_bars = function(
   series_name_3 = "",
   data_series_4 = NULL,
   series_name_4 = "",
-  legend_title = NULL
+  legend_title = "Legend"
 ){
   
   get_plot_data = function(data_series, series_name = ""){
@@ -263,32 +274,45 @@ plot_bars = function(
       y = reorder(category, count),
       x = count,
       fill = group)
-  ) +
-  scale_fill_brewer(palette = "Accent") +
-  ggplot2::geom_bar(
-    stat="identity",
-    position = ggplot2::position_dodge(),
-    colour = "black"
-  ) + ggplot2::geom_text(
-    ggplot2::aes(
-      family = "",
-      label = label, 
-      size = .8), 
-    position = ggplot2::position_dodge(width = 1), 
-    hjust = -0.1
+    ) +
+    scale_fill_brewer(palette = "Accent") +
+    ggplot2::geom_bar(
+      #ggplot2::aes(),
+      stat="identity",
+      position = ggplot2::position_dodge(width = .75),
+      colour = "black"
+    ) + 
+    ggplot2::geom_text(
+      ggplot2::aes(label = label), 
+      hjust = -0.5, 
+      size = 3,
+      position = position_dodge(width = 1),
+      inherit.aes = TRUE
+    ) +
+    #ggrepel::geom_label_repel(
+    #  direction = "x",
+    #  nudge_x = 1,
+    #  ggplot2::aes(alpha = .8, fill = "#ffffff", vjust = 0)
+    #) +
+    #ggplot2::geom_label(
+    #  position = "fill",
+    #  hjust = -.25, 
+    #  size = 3
+    #  ) +
   #) + ggplot2::geom_label(
   #  ggplot2::aes(label = label, size = .4), 
   #  position = ggplot2::position_dodge(width = 1), 
   #  hjust = -0.1,
   #  fill = "white",
   #  alpha = .8
-  ) + ggplot2::labs(
+    ggplot2::labs(
       title = title,
       subtitle = subtitle,
       fill = legend_title,
       x = axis_x_title,
       y = axis_y_title
-  ) + ggplot2::theme(legend.position = "bottom");
+  ) + 
+      ggplot2::theme(legend.position = "bottom");
   return(plot_object);
 }
 
@@ -298,7 +322,7 @@ plot_stack_count = function(
   axis_x_title = NULL,
   axis_y_title = NULL,
   remove_na = TRUE,
-  data_series = NULL, # data.frame with columns "group", "category", "value".
+  data_series = NULL, # data.frame with columns "group", "category", "count", "label"
   legend_title = NULL
 ){
   
@@ -307,24 +331,21 @@ plot_stack_count = function(
     ggplot2::aes(
       y = reorder(group, category),
       x = count,
+      label = label,
       fill = category),
-  ) + ggplot2::geom_bar(
-    stat="identity",
-    position = ggplot2::position_stack(),
-    colour = "black"
   ) + 
-    ggplot2::geom_text(
-    ggplot2::aes(
-      family = "",
-      label = label, 
-      size = .8), 
-    position = ggplot2::position_stack()
-    #) + ggplot2::geom_label(
-    #  ggplot2::aes(label = label, size = .4), 
-    #  position = ggplot2::position_dodge(width = 1), 
-    #  hjust = -0.1,
-    #  fill = "white",
-    #  alpha = .8
+    ggplot2::scale_fill_brewer(palette = "Accent") +
+    ggplot2::geom_bar(
+      stat = "identity",
+      position = ggplot2::position_stack(),
+      colour = "black"
+  ) + 
+    ggplot2::geom_label(
+      stat = "identity",
+      #inherit.aes = TRUE,
+      #fill = "white",
+      position = ggplot2::position_stack(),
+      show.legend = FALSE
   ) + ggplot2::labs(
     title = title,
     subtitle = subtitle,
@@ -332,10 +353,15 @@ plot_stack_count = function(
     x = axis_x_title,
     y = axis_y_title
   ) + ggplot2::theme(legend.position = "bottom");
+  
   return(plot_object);
 }
 
-plot_upset = function(data_frame, title, subtitle, caption){
+plot_upset = function(
+  title, 
+  subtitle, 
+  caption,
+  data_frame){
   # Uses the UpSetR package to plot an Upset graph.
   # This is ideal for the visualization of categorical data (or sets)
   # when the number of categories is no longer supporder by
@@ -376,7 +402,7 @@ plot_upset = function(data_frame, title, subtitle, caption){
   friendly_categories = names(sort(colSums(data_frame), decreasing = FALSE));
   
   # Plot the UpSet diagram.
-  upset_plot = UpSetR::upset(
+  UpSetR::upset(
     data = data_frame, 
     sets = friendly_categories,
     nintersects = NA,
@@ -388,7 +414,9 @@ plot_upset = function(data_frame, title, subtitle, caption){
       palette = "YlGnBu", 
       direction = -1);
   
-  upset_plot;
+  upset_plot = ggplot2::last_plot();
+  
+  return(upset_plot);
 }
 
 print("IAMPerf2020 environment loaded.")
