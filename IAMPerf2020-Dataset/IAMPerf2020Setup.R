@@ -46,6 +46,9 @@ iamperf2020_q28_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamper
 iamperf2020_q28_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q28BestPractices.csv")));
 iamperf2020_q29_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q29AgreementLevels.csv")));
 iamperf2020_q29_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q29BestPractices.csv")));
+iamperf2020_q30_automation_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q30IndicatorAutomation.csv")));
+iamperf2020_q31_coverage_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q31CoverageLevels.csv")));
+iamperf2020_q31_dimensions <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q31Dimensions.csv")));
 
 # Q9: Apply nicely labeled and properly unordered factors.
 iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
