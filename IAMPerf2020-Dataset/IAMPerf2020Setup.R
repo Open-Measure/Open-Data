@@ -44,6 +44,8 @@ iamperf2020_q27_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamper
 iamperf2020_q27_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q27BestPractices.csv")));
 iamperf2020_q28_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q28AgreementLevels.csv")));
 iamperf2020_q28_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q28BestPractices.csv")));
+iamperf2020_q29_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q29AgreementLevels.csv")));
+iamperf2020_q29_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q29BestPractices.csv")));
 
 # Q9: Apply nicely labeled and properly unordered factors.
 iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
@@ -208,7 +210,12 @@ iamperf2020_survey$Q28R4 = factor(iamperf2020_survey$Q28R4, levels = iamperf2020
 iamperf2020_survey$Q28R5 = factor(iamperf2020_survey$Q28R5, levels = iamperf2020_q28_agreement_levels$X, labels = iamperf2020_q28_agreement_levels$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q28R6 = factor(iamperf2020_survey$Q28R6, levels = iamperf2020_q28_agreement_levels$X, labels = iamperf2020_q28_agreement_levels$Title, ordered = TRUE, exclude = NA);
 
-# Q29:
+# Q29: Indicator Communication: Best Practices
+iamperf2020_survey$Q29R1 = factor(iamperf2020_survey$Q29R1, levels = iamperf2020_q29_agreement_levels$X, labels = iamperf2020_q29_agreement_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q29R2 = factor(iamperf2020_survey$Q29R2, levels = iamperf2020_q29_agreement_levels$X, labels = iamperf2020_q29_agreement_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q29R3 = factor(iamperf2020_survey$Q29R3, levels = iamperf2020_q29_agreement_levels$X, labels = iamperf2020_q29_agreement_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q29R4 = factor(iamperf2020_survey$Q29R4, levels = iamperf2020_q29_agreement_levels$X, labels = iamperf2020_q29_agreement_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q29R5 = factor(iamperf2020_survey$Q29R5, levels = iamperf2020_q29_agreement_levels$X, labels = iamperf2020_q29_agreement_levels$Title, ordered = TRUE, exclude = NA);
 
 # Q30:
 
