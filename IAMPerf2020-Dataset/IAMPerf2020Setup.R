@@ -49,6 +49,10 @@ iamperf2020_q29_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2
 iamperf2020_q30_automation_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q30IndicatorAutomation.csv")));
 iamperf2020_q31_coverage_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q31CoverageLevels.csv")));
 iamperf2020_q31_dimensions <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q31Dimensions.csv")));
+iamperf2020_q32_leading_vs_lagging_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q32LeadingVSLaggingLevels.csv")));
+iamperf2020_q38_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q38PolarQuestionLevels.csv")));
+iamperf2020_q39_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q39PolarQuestionLevels.csv")));
+iamperf2020_q40_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q40PolarQuestionLevels.csv")));
 
 # Q9: Apply nicely labeled and properly unordered factors.
 iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
@@ -80,7 +84,9 @@ for(column_counter in 1:nrow(iamperf2020_q11_experience_fields)){
     ordered = TRUE, exclude = NA);
 };
 
-#Q13 Organization
+# Q12 Textual Information
+
+# Q13 Organization
 for(column_counter in 1:nrow(iamperf2020_q13_org_roles)){
   current_column = as.character(iamperf2020_q13_org_roles[column_counter, "X"]);
   current_levels = c(1); # Single level :-)
@@ -92,14 +98,14 @@ for(column_counter in 1:nrow(iamperf2020_q13_org_roles)){
     ordered = FALSE, exclude = NA);
 };
 
-#Q14 Org Target
+# Q14 Org Target
 iamperf2020_survey$Q14 = factor(
   iamperf2020_survey$Q14, 
   levels = as.integer(iamperf2020_q14_org_targets$X), 
   labels = as.character(iamperf2020_q14_org_targets$Title), 
   ordered = FALSE, exclude = NA);
 
-#Q15 Last Work Year
+# Q15 Last Work Year
 # Retrieve and sort the unique years from Q15 answers
 q15_years = sort(unique(iamperf2020_survey$Q15[!is.na(iamperf2020_survey$Q15)]));
 iamperf2020_survey$Q15 = factor(
@@ -220,10 +226,23 @@ iamperf2020_survey$Q29R3 = factor(iamperf2020_survey$Q29R3, levels = iamperf2020
 iamperf2020_survey$Q29R4 = factor(iamperf2020_survey$Q29R4, levels = iamperf2020_q29_agreement_levels$X, labels = iamperf2020_q29_agreement_levels$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q29R5 = factor(iamperf2020_survey$Q29R5, levels = iamperf2020_q29_agreement_levels$X, labels = iamperf2020_q29_agreement_levels$Title, ordered = TRUE, exclude = NA);
 
-# Q30:
+# Q30 Indicator Automation
+iamperf2020_survey$Q30 = factor(iamperf2020_survey$Q30, levels = iamperf2020_q30_automation_levels$X, labels = iamperf2020_q30_automation_levels$Short, ordered = TRUE, exclude = NA);
 
-# Q31:
+# Q31 Indicator Measurement Dimensions.
+iamperf2020_survey$Q31R1 = factor(iamperf2020_survey$Q31R1, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R2 = factor(iamperf2020_survey$Q31R2, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R3 = factor(iamperf2020_survey$Q31R3, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R4 = factor(iamperf2020_survey$Q31R4, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R5 = factor(iamperf2020_survey$Q31R5, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R6 = factor(iamperf2020_survey$Q31R6, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R7 = factor(iamperf2020_survey$Q31R7, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R8 = factor(iamperf2020_survey$Q31R8, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R9 = factor(iamperf2020_survey$Q31R9, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q31R10 = factor(iamperf2020_survey$Q31R10, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
 
+# Q32 Lead vs lag indicators
+iamperf2020_survey$Q32 = factor(iamperf2020_survey$Q32, levels = iamperf2020_q32_$X, labels = iamperf2020_q30_automation_levels$Short, ordered = TRUE, exclude = NA);
 
 
 ## Small trick for good-looking chart labels
