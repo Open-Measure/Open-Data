@@ -242,8 +242,34 @@ iamperf2020_survey$Q31R9 = factor(iamperf2020_survey$Q31R9, levels = iamperf2020
 iamperf2020_survey$Q31R10 = factor(iamperf2020_survey$Q31R10, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
 
 # Q32 Lead vs lag indicators
-iamperf2020_survey$Q32 = factor(iamperf2020_survey$Q32, levels = iamperf2020_q32_leading_vs_lagging_levels$X, labels = iamperf2020_q32_leading_vs_lagging_levels$Short, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q32 = factor(iamperf2020_survey$Q32, levels = iamperf2020_q32_leading_vs_lagging_levels$X, labels = iamperf2020_q32_leading_vs_lagging_levels$Title, ordered = TRUE, exclude = NA);
 
+# Q33 - Top 3 Indicators
+# N/A
+
+# Q34 - Negative - Have you observed counter-productive...
+# N/A
+
+# Q35 - IndNumber - How many IAM performance indicators...
+# N/A
+
+# Q36 - Difficulty - What barriers or difficulties...
+# N/A
+
+# Q37 - Advise - What would be your key advises to someone...
+# N/A
+
+# Q38 - Bench1 - Did your organization benchmarked its...
+iamperf2020_survey$Q38 = factor(iamperf2020_survey$Q38, levels = iamperf2020_q38_polar_question_levels$X, labels = iamperf2020_q38_polar_question_levels$Title, ordered = FALSE, exclude = NA);
+
+# Q39 - Standard - Do you believe your organization...
+iamperf2020_survey$Q39 = factor(iamperf2020_survey$Q39, levels = iamperf2020_q39_polar_question_levels$X, labels = iamperf2020_q39_polar_question_levels$Title, ordered = FALSE, exclude = NA);
+
+# Q40 - Bench2 - Do you believe your organization would benefit...
+iamperf2020_survey$Q40 = factor(iamperf2020_survey$Q40, levels = iamperf2020_q40_polar_question_levels$X, labels = iamperf2020_q40_polar_question_levels$Title, ordered = FALSE, exclude = NA);
+
+# Q41 - Else - Would you like to share with us...
+# N/A
 
 ## Small trick for good-looking chart labels
 # When labelling charts with ratios, such as percentages, naive number rounding 
