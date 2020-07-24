@@ -169,6 +169,21 @@ iamperf2020_survey$Q24R4 = factor(iamperf2020_survey$Q24R4, levels = iamperf2020
 iamperf2020_survey$Q24R5 = factor(iamperf2020_survey$Q24R5, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q24R6 = factor(iamperf2020_survey$Q24R6, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
 
+# Q25: Only textual information
+# N/A
+
+# Q26: Indicator Roles
+for(column_counter in 1:nrow(iamperf2020_q26_reporting_lines)){
+  current_column = as.character(iamperf2020_q22_reporting_lines[column_counter, "X"]);
+  current_levels = c(1); # Single level :-)
+  current_labels = as.character(iamperf2020_q22_reporting_lines[column_counter, "Title"]);
+  iamperf2020_survey[,current_column] = factor(
+    iamperf2020_survey[,current_column], 
+    levels = current_levels, 
+    labels = current_labels, 
+    ordered = FALSE, exclude = NA);
+};
+
 ## Small trick for good-looking chart labels
 # When labelling charts with ratios, such as percentages, naive number rounding 
 # naturally yield incorrect sums (e.g. the sum of label percentages is 99.9% or 
