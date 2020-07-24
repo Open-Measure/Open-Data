@@ -34,6 +34,7 @@ iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_dat
 iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
 iamperf2020_q21_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q21Domains.csv")));
 iamperf2020_q21_centralization <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q21Centralization.csv")));
+iamperf2020_q22_reporting_lines <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q22ReportingLines.csv")));
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
 iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Priorities.csv")));
 
@@ -132,6 +133,18 @@ iamperf2020_survey$Q21R3 = factor(iamperf2020_survey$Q21R3, levels = iamperf2020
 iamperf2020_survey$Q21R4 = factor(iamperf2020_survey$Q21R4, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q21R5 = factor(iamperf2020_survey$Q21R5, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q21R6 = factor(iamperf2020_survey$Q21R6, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
+
+# Q22: IAM Manager Reporting Line.
+for(column_counter in 1:nrow(iamperf2020_q22_reporting_lines)){
+  current_column = as.character(iamperf2020_q22_reporting_lines[column_counter, "X"]);
+  current_levels = c(1); # Single level :-)
+  current_labels = as.character(iamperf2020_q22_reporting_lines[column_counter, "Title"]);
+  iamperf2020_survey[,current_column] = factor(
+    iamperf2020_survey[,current_column], 
+    levels = current_levels, 
+    labels = current_labels, 
+    ordered = FALSE, exclude = NA);
+};
 
 # Q23: Apply nicely labeled and properly ordered factors.
 iamperf2020_survey$Q23R1 = factor(iamperf2020_survey$Q23R1, levels = iamperf2020_q23_priorities$X, labels = iamperf2020_q23_priorities$Title, ordered = TRUE, exclude = NA);
@@ -358,9 +371,9 @@ plot_stack_count = function(
 }
 
 plot_upset = function(
-  title, 
-  subtitle, 
-  caption,
+  title = NULL, 
+  subtitle = NULL, 
+  caption = NULL,
   data_frame){
   # Uses the UpSetR package to plot an Upset graph.
   # This is ideal for the visualization of categorical data (or sets)
