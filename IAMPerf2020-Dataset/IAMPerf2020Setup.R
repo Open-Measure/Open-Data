@@ -351,6 +351,47 @@ plot_pie_flavour_1 = function(
   return(pie_plot);
 }
 
+
+if(!require("forcats")) install.packages("forcats");
+prepare_data_barchart = function(
+  data_series, 
+  ordering_option = "count", # category | count | level
+  ordering_direction = 1 # 1 | -1
+)
+{
+  data_series_levels = levels(data_series);
+  decreasing = ifelse(ordering_direction == 1, FALSE, TRUE);
+  data_series = as.vector(unlist(data_series)); # Coerce to a single vector.
+  data_series = data_series[!is.na(data_series)]; # Remove NAs if applicable.
+  data_table = table(data_series);
+  data_count_label = paste("(", data_table, ")", sep = "");
+  data_category = names(data_table);
+  data_frequency = prop.table(data_table);
+  data_frequency_label = paste(rounded_ratios_with_largest_remainder(data_frequency, digits = 1), "%");
+  data_label = paste(data_frequency_label, data_count_label, sep = " ");
+  data_count = as.vector(data_table);
+  data_frame = data.frame(
+    category = data_category,
+    count = data_count,
+    label = data_label
+  );
+  if(ordering_option == "category") { 
+    data_frame = data_frame[order(data_frame$category, decreasing = decreasing),]; 
+  }
+  if(ordering_option == "count") { 
+    data_frame = data_frame[order(data_frame$count, decreasing = decreasing),]; 
+  }
+  if(ordering_option == "level") { 
+    data_frame$category = factor(
+      data_frame$category,
+      levels = data_series_levels,
+      ordered = TRUE
+    );
+    data_frame = dplyr::arrange(data_frame, category);    
+  }
+  return(data_frame);
+}
+
 if(!require("ggrepel")) install.packages("ggrepel");
 plot_bars = function(
   title = NULL,
@@ -414,22 +455,6 @@ plot_bars = function(
       position = position_dodge(width = 1),
       inherit.aes = TRUE
     ) +
-    #ggrepel::geom_label_repel(
-    #  direction = "x",
-    #  nudge_x = 1,
-    #  ggplot2::aes(alpha = .8, fill = "#ffffff", vjust = 0)
-    #) +
-    #ggplot2::geom_label(
-    #  position = "fill",
-    #  hjust = -.25, 
-    #  size = 3
-    #  ) +
-  #) + ggplot2::geom_label(
-  #  ggplot2::aes(label = label, size = .4), 
-  #  position = ggplot2::position_dodge(width = 1), 
-  #  hjust = -0.1,
-  #  fill = "white",
-  #  alpha = .8
     ggplot2::labs(
       title = title,
       subtitle = subtitle,
@@ -438,6 +463,52 @@ plot_bars = function(
       y = axis_y_title
   ) + 
       ggplot2::theme(legend.position = "bottom");
+  return(plot_object);
+}
+
+plot_barchart_gradients = function(
+  title = NULL,
+  subtitle = NULL,
+  axis_x_title = NULL,
+  axis_y_title = NULL,
+  data_series, # A factorized vector or dataframe. 
+  legend_title = "Legend"
+){
+  
+  plot_data = prepare_data_barchart(
+    data_series, 
+    ordering_option = "level");
+  
+  plot_object = ggplot2::ggplot(
+    data = plot_data, 
+    ggplot2::aes(
+      y = category,
+      x = count,
+      fill = category)
+  ) +
+    scale_fill_brewer(palette = "YlGnBu") +
+    ggplot2::geom_bar(
+      #ggplot2::aes(),
+      stat = "identity",
+      position = ggplot2::position_dodge(width = .75),
+      colour = "black"
+    ) + 
+    ggplot2::geom_text(
+      ggplot2::aes(label = label), 
+      hjust = -0.5, 
+      size = 3,
+      position = position_dodge(width = 1),
+      inherit.aes = TRUE
+      ) + 
+    ggplot2::labs(
+      title = title,
+      subtitle = subtitle,
+      fill = legend_title,
+      x = axis_x_title,
+      y = axis_y_title
+      ) + 
+    ggplot2::theme(legend.position = "bottom");
+  
   return(plot_object);
 }
 
