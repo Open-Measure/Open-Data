@@ -373,7 +373,7 @@ plot_stack_count = function(
 plot_upset = function(
   title = NULL, 
   subtitle = NULL, 
-  caption = NULL,
+  caption,
   data_frame){
   # Uses the UpSetR package to plot an Upset graph.
   # This is ideal for the visualization of categorical data (or sets)
