@@ -242,7 +242,7 @@ iamperf2020_survey$Q31R9 = factor(iamperf2020_survey$Q31R9, levels = iamperf2020
 iamperf2020_survey$Q31R10 = factor(iamperf2020_survey$Q31R10, levels = iamperf2020_q31_coverage_levels$X, labels = iamperf2020_q31_coverage_levels$Title, ordered = TRUE, exclude = NA);
 
 # Q32 Lead vs lag indicators
-iamperf2020_survey$Q32 = factor(iamperf2020_survey$Q32, levels = iamperf2020_q32_$X, labels = iamperf2020_q30_automation_levels$Short, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q32 = factor(iamperf2020_survey$Q32, levels = iamperf2020_q32_leading_vs_lagging_levels$X, labels = iamperf2020_q32_leading_vs_lagging_levels$Short, ordered = TRUE, exclude = NA);
 
 
 ## Small trick for good-looking chart labels
