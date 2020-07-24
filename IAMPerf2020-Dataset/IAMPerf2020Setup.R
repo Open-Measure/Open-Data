@@ -39,6 +39,7 @@ iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_
 iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Priorities.csv")));
 iamperf2020_q24_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q24Domains.csv")));
 iamperf2020_q24_maturity_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q24MaturityLevels.csv")));
+iamperf2020_q26_indicator_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q26IndicatorRoles.csv")));
 
 # Q9: Apply nicely labeled and properly unordered factors.
 iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
@@ -173,16 +174,34 @@ iamperf2020_survey$Q24R6 = factor(iamperf2020_survey$Q24R6, levels = iamperf2020
 # N/A
 
 # Q26: Indicator Roles
-for(column_counter in 1:nrow(iamperf2020_q26_reporting_lines)){
-  current_column = as.character(iamperf2020_q22_reporting_lines[column_counter, "X"]);
+for(column_counter in 1:nrow(iamperf2020_q26_indicator_roles)){
+  current_column = as.character(iamperf2020_q26_indicator_roles[column_counter, "X"]);
   current_levels = c(1); # Single level :-)
-  current_labels = as.character(iamperf2020_q22_reporting_lines[column_counter, "Title"]);
+  current_labels = as.character(iamperf2020_q26_indicator_roles[column_counter, "Title"]);
   iamperf2020_survey[,current_column] = factor(
     iamperf2020_survey[,current_column], 
     levels = current_levels, 
     labels = current_labels, 
     ordered = FALSE, exclude = NA);
 };
+
+# Q27: 
+iamperf2020_survey$Q24R1 = factor(iamperf2020_survey$Q24R1, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R2 = factor(iamperf2020_survey$Q24R2, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R3 = factor(iamperf2020_survey$Q24R3, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R4 = factor(iamperf2020_survey$Q24R4, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R5 = factor(iamperf2020_survey$Q24R5, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R6 = factor(iamperf2020_survey$Q24R6, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+
+# Q28:
+
+# Q29:
+
+# Q30:
+
+# Q31:
+
+
 
 ## Small trick for good-looking chart labels
 # When labelling charts with ratios, such as percentages, naive number rounding 
@@ -417,7 +436,10 @@ plot_upset = function(
   #
   #if(!require("ggplot2")) install.packages("ggplot2");
   #if(!require("viridis")) install.packages("viridis");
-  if(!require("UpSetR")) install.packages("UpSetR");
+  #if(!require("UpSetR")) install.packages("UpSetR");
+  if(!require("processx")) install.packages("processx");
+  if(!require("devtools")) install.packages("devtools");
+  devtools::install_github("hms-dbmi/UpSetR")
   #if(!require("ggstatsplot")) install.packages("ggstatsplot");
   
   # Retrieve the category full names from the factor labels.
@@ -440,21 +462,24 @@ plot_upset = function(
   friendly_categories = names(sort(colSums(data_frame), decreasing = FALSE));
   
   # Plot the UpSet diagram.
-  UpSetR::upset(
+  plot_object = UpSetR::upset(
     data = data_frame, 
     sets = friendly_categories,
     nintersects = NA,
+    sets.bar.color = RColorBrewer::brewer.pal(
+      n = length(friendly_categories), 
+      name = "Accent"),
+    matrix.color = "black",
   #  order.by = "freq",
     mb.ratio = c(0.3, 0.7),
     keep.order = TRUE,
-    set_size.show	= TRUE) +
-    scale_colour_brewer(
-      palette = "YlGnBu", 
-      direction = -1);
+    set_size.show	= TRUE)
+
+  # Was required in CRAN version of UpSetR:  
+  #upset_plot = ggplot2::last_plot();
+  # Reference: https://github.com/hms-dbmi/UpSetR/pull/100
   
-  upset_plot = ggplot2::last_plot();
-  
-  return(upset_plot);
+  return(plot_object);
 }
 
 print("IAMPerf2020 environment loaded.")
