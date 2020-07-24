@@ -37,6 +37,8 @@ iamperf2020_q21_centralization <- read.csv (text = RCurl::getURL(paste0(iamperf2
 iamperf2020_q22_reporting_lines <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q22ReportingLines.csv")));
 iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
 iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Priorities.csv")));
+iamperf2020_q24_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q24Domains.csv")));
+iamperf2020_q24_maturity_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q24MaturityLevels.csv")));
 
 # Q9: Apply nicely labeled and properly unordered factors.
 iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
@@ -158,6 +160,14 @@ iamperf2020_survey$Q23R8 = factor(iamperf2020_survey$Q23R8, levels = iamperf2020
 iamperf2020_survey$Q23R9 = factor(iamperf2020_survey$Q23R9, levels = iamperf2020_q23_priorities$X, labels = iamperf2020_q23_priorities$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q23R10 = factor(iamperf2020_survey$Q23R10, levels = iamperf2020_q23_priorities$X, labels = iamperf2020_q23_priorities$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q23R11 = factor(iamperf2020_survey$Q23R11, levels = iamperf2020_q23_priorities$X, labels = iamperf2020_q23_priorities$Title, ordered = TRUE, exclude = NA);
+
+# Q24: Maturity Levels
+iamperf2020_survey$Q24R1 = factor(iamperf2020_survey$Q24R1, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R2 = factor(iamperf2020_survey$Q24R2, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R3 = factor(iamperf2020_survey$Q24R3, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R4 = factor(iamperf2020_survey$Q24R4, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R5 = factor(iamperf2020_survey$Q24R5, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
+iamperf2020_survey$Q24R6 = factor(iamperf2020_survey$Q24R6, levels = iamperf2020_q24_maturity_levels$X, labels = iamperf2020_q24_maturity_levels$Title, ordered = TRUE, exclude = NA);
 
 ## Small trick for good-looking chart labels
 # When labelling charts with ratios, such as percentages, naive number rounding 
