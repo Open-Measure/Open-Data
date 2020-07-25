@@ -227,6 +227,9 @@ iamperf2020_survey$Q29R4 = factor(iamperf2020_survey$Q29R4, levels = iamperf2020
 iamperf2020_survey$Q29R5 = factor(iamperf2020_survey$Q29R5, levels = iamperf2020_q29_agreement_levels$X, labels = iamperf2020_q29_agreement_levels$Title, ordered = TRUE, exclude = NA);
 
 # Q30 Indicator Automation
+# Warning: the original levels are ordered as 1: automated, 2: partially, 3: manual.
+# Here, thanks to the pre-ordering in the CSV file, I reorder the factor to 3: manual, 2: partially, 1: automated
+# When charting the data, going from "negative" to "positive" is in effect more natural.
 iamperf2020_survey$Q30 = factor(iamperf2020_survey$Q30, levels = iamperf2020_q30_automation_levels$X, labels = iamperf2020_q30_automation_levels$Short, ordered = TRUE, exclude = NA);
 
 # Q31 Indicator Measurement Dimensions.
