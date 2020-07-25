@@ -1,5 +1,4 @@
 "","Short","Full"
-"1","Mostly automated","Fully or mostly automated with manual interventions only when automation is not feasible"
+"1","Mostly manual","Mostly manual starting from data extraction, computation and reporting with only a few automation mechanisms"
 "2","Partially automated","Partially automated with a balanced mix of manual tasks and automated tasks"
-"3","Mostly manual","Mostly manual starting from data extraction, computation and reporting with only a few automation mechanisms"
-"4","NA","Not applicable or I don't know"
+"3","Mostly automated","Fully or mostly automated with manual interventions only when automation is not feasible"

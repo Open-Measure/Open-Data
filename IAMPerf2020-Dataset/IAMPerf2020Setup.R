@@ -474,6 +474,9 @@ plot_barchart_gradients = function(
   data_series, # A factorized vector or dataframe. 
   legend_title = "Legend"
 ){
+  # Returns a GGPlot2 barchart 
+  # with gradient colors
+  # and bars ordered by factor levels.
   
   plot_data = prepare_data_barchart(
     data_series, 
@@ -500,7 +503,14 @@ plot_barchart_gradients = function(
       position = position_dodge(width = 1),
       inherit.aes = TRUE
       ) + 
-    ggplot2::labs(
+    ggplot2::xlim(
+      0, round(max(plot_data$count) * 1.1,0)
+    ) +
+    ggplot2::theme(
+      panel.spacing = ggplot2::unit(c(.1,.1,.1,.1), "cm"),
+      plot.margin = ggplot2::unit(c(.1,.1,.1,.1), "cm")
+      ) +
+  ggplot2::labs(
       title = title,
       subtitle = subtitle,
       fill = legend_title,
