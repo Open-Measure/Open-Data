@@ -295,6 +295,50 @@ rounded_ratios_with_largest_remainder = function(
   return(deflated_election);
 };
 
+if(!require("grid")) install.packages("grid");
+if(!require("gridtext")) install.packages("gridtext");
+if(!require("ggtext")) install.packages("ggtext");
+plot_statistical_test = function(test_results){
+  plot_object = 
+    ggplot2::ggplot(data.frame(x = c(0,1), y = c(0,1))) + 
+    ggplot2::aes(x, y) +
+    ggplot2::geom_line(linetype = "blank") +
+    ggplot2::annotate(
+      "text", 
+      x = 0, #xmin = 0, xmax = 1,
+      y = .5, #ymin = 0, ymax = 1,
+      size = 5, 
+      label = test_results,
+      family = "mono",
+      hjust = 0
+      #vjust = -1
+      ) +
+    #ggplot2::geom_text(
+    #  data = data.frame(text = test_results, x = 0, y = 0),
+    #  size = 5, 
+    #  label = test_results,
+    #  family = "mono",
+    #  hjust = 0
+    #) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      plot.margin = margin(.1,.1,1,.1, "cm"),
+      axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y=element_blank(),
+      axis.ticks=element_blank(),
+      axis.title.x=element_blank(),
+      axis.title.y=element_blank(),
+      legend.position="none",
+      panel.background=element_blank(),
+      panel.border=element_blank(),
+      panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      panel.spacing = margin(.1,.1,1,.1, "cm"),
+      plot.background=element_blank());
+  return(plot_object);
+}
+
 plot_pie_flavour_1 = function(
   plot_data, # An factorized data vector 
   title = NULL,
@@ -520,7 +564,7 @@ plot_barchart_gradients = function(
       x = axis_x_title,
       y = axis_y_title
       ) + 
-    ggplot2::theme(legend.position = "bottom");
+    ggplot2::theme(legend.position = "none");
   
   return(plot_object);
 }
