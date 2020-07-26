@@ -508,7 +508,7 @@ plot_bars = function(
       fill = legend_title,
       x = axis_x_title,
       y = axis_y_title
-  ) + 
+    ) + 
       ggplot2::theme(legend.position = "bottom");
   return(plot_object);
 }
