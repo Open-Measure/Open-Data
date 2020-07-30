@@ -6,6 +6,9 @@
 # syntax *package::function*. This makes the code slightly harsher to read but this
 # is a price I am pleased to pay. 
 
+# Set console to English
+Sys.setenv(LANG = "en");
+
 print("Loading the IAMPerf2020 environment...");
 
 # Packages
