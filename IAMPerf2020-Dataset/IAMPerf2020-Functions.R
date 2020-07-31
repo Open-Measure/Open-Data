@@ -311,19 +311,20 @@ plot_barchart_gradients = function(
     round(max(plot_data$count) * 1.1,0),
     x_lim_max);
   
-  plot_object = ggplot2::ggplot(
+  plot_object = 
+    ggplot2::ggplot(
     data = plot_data, 
     ggplot2::aes(
       y = category,
       x = count,
       fill = category)
     ) +
-    scale_fill_brewer(palette = "YlGnBu") +
     ggplot2::geom_bar(
       stat = "identity",
-      position = ggplot2::position_dodge(width = .75),
+      #position = ggplot2::position_dodge(width = .75),
       colour = "black"
     ) + 
+    viridis::scale_fill_viridis(discrete = TRUE) +
     ggplot2::geom_text(
       ggplot2::aes(label = label), 
       hjust = -0.5, 
@@ -442,10 +443,12 @@ plot_upset = function(
     data = data_frame, 
     sets = friendly_categories,
     #expression = "ColName > 3",
-    sets.bar.color = grDevices::colorRampPalette(
-      brewer.pal(8, "YlGnBu"))(length(friendly_categories)),
+    sets.bar.color = 
+      viridis::viridis(n = length(friendly_categories)),
+      #grDevices::colorRampPalette(
+      #brewer.pal(8, "YlGnBu"))(length(friendly_categories)),
     matrix.color = "black",
-    order.by = "freq",
+    #order.by = "freq",
     #intersections = 20,
     mb.ratio = c(0.3, 0.7),
     #keep.order = TRUE,
