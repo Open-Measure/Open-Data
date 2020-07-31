@@ -18,8 +18,8 @@ if(!require("ggpubr")) install.packages("ggpubr");
 save_plot = function(
   plot_object, 
   file_name,
-  width = NULL,
-  height = NULL){
+  width = 11,
+  height = NA){
   
   setwd("C:\\Users\\david\\Google Drive (openmeasure@gmail.com)\\Private\\GitHub\\Open-Data\\IAMPerf2020-Dataset");
   
@@ -354,7 +354,7 @@ plot_stack_count = function(
   axis_x_title = NULL,
   axis_y_title = NULL,
   remove_na = TRUE,
-  data_series = NULL, # data.frame with columns "group", "category", "count", "label"
+  plot_data = NULL, # data.frame with columns "group", "category", "count", "label"
   legend_title = NULL
 ){
   
@@ -437,21 +437,22 @@ plot_upset = function(
   friendly_categories = names(sort(colSums(data_frame), decreasing = FALSE));
   
   # Plot the UpSet diagram.
-  plot_object = UpSetR::upset(
+  plot_object = 
+  UpSetR::upset(
     data = data_frame, 
     sets = friendly_categories,
-    nintersects = NA,
-    sets.bar.color = RColorBrewer::brewer.pal(
-      n = length(friendly_categories), 
-      name = "Accent"),
+    #expression = "ColName > 3",
+    sets.bar.color = grDevices::colorRampPalette(
+      brewer.pal(8, "YlGnBu"))(length(friendly_categories)),
     matrix.color = "black",
-    #  order.by = "freq",
+    order.by = "freq",
+    #intersections = 20,
     mb.ratio = c(0.3, 0.7),
-    keep.order = TRUE,
+    #keep.order = TRUE,
     set_size.show	= TRUE)
   
   # Was required in CRAN version of UpSetR:  
-  #upset_plot = ggplot2::last_plot();
+  plot_object = ggplot2::last_plot();
   # Reference: https://github.com/hms-dbmi/UpSetR/pull/100
   
   return(plot_object);
