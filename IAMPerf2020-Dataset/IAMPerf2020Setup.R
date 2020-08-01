@@ -13,18 +13,13 @@ print("Loading the IAMPerf2020 environment...");
 
 # Packages
 if(!require("RCurl")) install.packages("RCurl");
-if(!require("htmltools")) install.packages("htmltools");
-if(!require("scales")) install.packages("scales");
-if(!require("likert")) install.packages("likert");
-#if(!require("HH")) install.packages("HH");
-if(!require("ggplot2")) install.packages("ggplot2");
-if(!require("RColorBrewer")) install.packages("RColorBrewer");
 
 # Configuration options
 iamperf2020_data_url = "https://raw.githubusercontent.com/Open-Measure/Open-Data/master/IAMPerf2020-Dataset/";
 
 # Load the data
 iamperf2020_survey <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020.csv")));
+iamperf2020_questions <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Questions.csv")));
 iamperf2020_q9_countries <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q9Countries.csv")));
 iamperf2020_q10_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q10Roles.csv")));
 iamperf2020_q11_experience_fields <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q11ExperienceFields.csv")));

@@ -11,7 +11,21 @@
 Sys.setenv(LANG = "en");
 
 # Packages
+if(!require("ggplot2")) install.packages("ggplot2");
+if(!require("viridis")) install.packages("viridis");
 if(!require("ggpubr")) install.packages("ggpubr");
+if(!require("forcats")) install.packages("forcats");
+if(!require("grid")) install.packages("grid");
+if(!require("gridtext")) install.packages("gridtext");
+if(!require("ggtext")) install.packages("ggtext");
+if(!require("ggrepel")) install.packages("ggrepel");
+if(!require("htmltools")) install.packages("htmltools");
+if(!require("scales")) install.packages("scales");
+if(!require("plyr")) install.packages("plyr");
+if(!require("likert")) install.packages("likert");
+#if(!require("HH")) install.packages("HH");
+if(!require("ggplot2")) install.packages("ggplot2");
+if(!require("RColorBrewer")) install.packages("RColorBrewer");
 
 # Functions Declarations
 
@@ -48,7 +62,6 @@ save_plot = function(
   }
 }
 
-if(!require("forcats")) install.packages("forcats");
 prepare_data_barchart_with_single_column_coercion = function(
   plot_data, # The data series
   ordering_option = "count", # category | count | level
@@ -73,9 +86,11 @@ prepare_data_barchart_with_single_column_coercion = function(
   );
   if(ordering_option == "category") { 
     data_frame = data_frame[order(data_frame$category, decreasing = decreasing),]; 
+    rownames(data_frame) = 1:nrow(data_frame);
   }
   if(ordering_option == "count") { 
     data_frame = data_frame[order(data_frame$count, decreasing = decreasing),]; 
+    rownames(data_frame) = 1:nrow(data_frame);
   }
   if(ordering_option == "level") { 
     data_frame$category = factor(
@@ -84,6 +99,7 @@ prepare_data_barchart_with_single_column_coercion = function(
       ordered = TRUE
     );
     data_frame = dplyr::arrange(data_frame, category);    
+    rownames(data_frame) = 1:nrow(data_frame);
   }
   return(data_frame);
 }
@@ -109,9 +125,6 @@ rounded_ratios_with_largest_remainder = function(
   return(deflated_election);
 };
 
-if(!require("grid")) install.packages("grid");
-if(!require("gridtext")) install.packages("gridtext");
-if(!require("ggtext")) install.packages("ggtext");
 plot_statistical_test = function(test_results){
   plot_object = 
     ggplot2::ggplot(data.frame(x = c(0,1), y = c(0,1))) + 
@@ -212,8 +225,6 @@ plot_pie_flavour_1 = function(
   return(pie_plot);
 }
 
-
-if(!require("ggrepel")) install.packages("ggrepel");
 plot_bars = function(
   title = NULL,
   subtitle = NULL,
@@ -315,16 +326,16 @@ plot_barchart_gradients = function(
     ggplot2::ggplot(
     data = plot_data, 
     ggplot2::aes(
-      y = category,
+      y = reorder(category, count),
       x = count,
-      fill = category)
+      fill = count)
     ) +
     ggplot2::geom_bar(
       stat = "identity",
       #position = ggplot2::position_dodge(width = .75),
       colour = "black"
     ) + 
-    viridis::scale_fill_viridis(discrete = TRUE) +
+    viridis::scale_fill_viridis(discrete = FALSE, direction = -1) +
     ggplot2::geom_text(
       ggplot2::aes(label = label), 
       hjust = -0.5, 
@@ -415,7 +426,7 @@ plot_upset = function(
   #if(!require("UpSetR")) install.packages("UpSetR");
   if(!require("processx")) install.packages("processx");
   if(!require("devtools")) install.packages("devtools");
-  devtools::install_github("hms-dbmi/UpSetR")
+  devtools::install_github("hms-dbmi/UpSetR", force = TRUE);
   #if(!require("ggstatsplot")) install.packages("ggstatsplot");
   
   # Retrieve the category full names from the factor labels.
@@ -438,25 +449,29 @@ plot_upset = function(
   friendly_categories = names(sort(colSums(data_frame), decreasing = FALSE));
   
   # Plot the UpSet diagram.
-  plot_object = 
+  #plot_object = 
   UpSetR::upset(
     data = data_frame, 
     sets = friendly_categories,
-    #expression = "ColName > 3",
+    #expression = "ColName > 1",
+    #expression = "RowName > 1",
     sets.bar.color = 
-      viridis::viridis(n = length(friendly_categories)),
+      viridis::viridis(n = length(friendly_categories), direction = -1),
       #grDevices::colorRampPalette(
       #brewer.pal(8, "YlGnBu"))(length(friendly_categories)),
     matrix.color = "black",
-    #order.by = "freq",
-    #intersections = 20,
+    order.by = "freq",
+    #nintersects = NULL, #30,
     mb.ratio = c(0.3, 0.7),
-    #keep.order = TRUE,
-    set_size.show	= TRUE)
+    keep.order = TRUE,
+    set_size.show	= TRUE);
+  
+  # Reference: https://github.com/hms-dbmi/UpSetR/issues/76
+  # grid::grid.text(title,x = 0.1, y=0.95, gp=gpar(fontsize=16))
   
   # Was required in CRAN version of UpSetR:  
-  plot_object = ggplot2::last_plot();
+  #plot_object = ggplot2::last_plot();
   # Reference: https://github.com/hms-dbmi/UpSetR/pull/100
   
-  return(plot_object);
+  #return(plot_object);
 }
