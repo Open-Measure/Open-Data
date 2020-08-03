@@ -62,6 +62,7 @@ save_plot = function(
   }
 }
 
+# Ideal to compare 3 or more distributions.
 prepare_data_barchart_with_single_column_coercion = function(
   plot_data, # The data series
   ordering_option = "count", # category | count | level
@@ -69,9 +70,14 @@ prepare_data_barchart_with_single_column_coercion = function(
 )
 {
   data_series_levels = levels(plot_data);
+  factor_is_ordered = is.ordered(plot_data);
   decreasing = ifelse(ordering_direction == 1, FALSE, TRUE);
-  plot_data = as.vector(unlist(plot_data)); # Coerce to a single vector.
-  plot_data = plot_data[!is.na(plot_data)]; # Remove NAs if applicable.
+  # Coerce to a single vector.
+  plot_data = as.vector(unlist(plot_data)); 
+  # Remove NAs if applicable.
+  plot_data = plot_data[!is.na(plot_data)];
+  # Reapply original factors. Like this, if one factor has a count of 0, it will be maintained.
+  plot_data = factor(plot_data, levels = data_series_levels, ordered = factor_is_ordered);
   data_table = table(plot_data);
   data_count_label = paste("(", data_table, ")", sep = "");
   data_category = names(data_table);
@@ -82,6 +88,7 @@ prepare_data_barchart_with_single_column_coercion = function(
   data_frame = data.frame(
     category = data_category,
     count = data_count,
+    frequency = as.numeric(data_frequency),
     label = data_label
   );
   if(ordering_option == "category") { 
@@ -356,6 +363,71 @@ plot_barchart_gradients = function(
       y = axis_y_title
     ) + 
     ggplot2::theme(legend.position = "none");
+  
+  return(plot_object);
+}
+
+plot_barchart_gradients_dodged_series = function(
+  title = NULL,
+  subtitle = NULL,
+  axis_x_title = NULL,
+  axis_y_title = NULL,
+  plot_data, # Pre-summarized data with multiple series
+  # Data structure: series, category, count, label
+  legend_title = "Legend",
+  x_lim_min = NULL,
+  x_lim_max = NULL
+){
+  # Returns a GGPlot2 barchart 
+  # with gradient colors
+  # and bars ordered by factor levels.
+  
+  x_lim_min = ifelse(
+    is.null(x_lim_min), 
+    0,
+    x_lim_min);
+  
+  x_lim_max = ifelse(
+    is.null(x_lim_max), 
+    round(max(plot_data$value) * 1.1,0),
+    x_lim_max);
+  
+  plot_object = 
+    ggplot2::ggplot(
+      data = plot_data, 
+      ggplot2::aes(
+        y = category,
+        x = value,
+        fill = series)
+    ) +
+    ggplot2::geom_bar(
+      stat = "identity",
+      position = ggplot2::position_dodge(width = 1),
+      colour = "black"
+    ) + 
+    viridis::scale_fill_viridis(discrete = TRUE, direction = -1) +
+    ggplot2::geom_text(
+      angle = 90,
+      ggplot2::aes(label = label), 
+      hjust = -.5, 
+      size = 3,
+      position = position_dodge(width = 1),
+      inherit.aes = TRUE
+    ) + 
+    ggplot2::xlim(x_lim_min, x_lim_max) +
+    ggplot2::coord_flip() +
+    #ggplot2::theme(
+    #  panel.spacing = ggplot2::unit(c(.1,.1,.1,.1), "cm"),
+    #  plot.margin = ggplot2::unit(c(.1,.1,.1,.1), "cm")
+    #) +
+    ggplot2::labs(
+      title = title,
+      subtitle = subtitle,
+      fill = legend_title,
+      x = axis_x_title,
+      y = axis_y_title
+    ) + 
+    ggplot2::theme(legend.position = "bottom");
   
   return(plot_object);
 }
