@@ -14,6 +14,7 @@ test_hypothesis_ordinal_greater = function(
   cat("H0:", h0, "\n");
   cat("Ha:", ha, "\n\n"); 
  
+  # "Naive" approache with Wilcoxon test. Later discarded.
   #cat("WILCOXON SIGNED RANK SUM TEST (WSRST) \n\n");
   ## Execute the Wilcoxon test.
   #wilcox_test_outcome = wilcox.test(
@@ -63,9 +64,65 @@ test_hypothesis_ordinal_greater = function(
       cat("The test is not statistically significant.\n\n");
     };
   
+}
+
+# **********************************************
+# * Hypothesis IAM CMM is normally distributed *
+# **********************************************
+
+# Question 24
+
+prepare_data_hypothesis_iam_cmm_normal = function(){
+  
+  plot_data = data.frame();
+  
+  for(column_index in 1:nrow(iamperf2020_q24_domains)){
+    
+    facet_data = prepare_data_barchart_with_single_column_coercion(
+      iamperf2020_survey[,as.character(iamperf2020_q24_domains$X[column_index])], 
+      ordering_option = "level");
+    
+    facet_data$facet = iamperf2020_q24_domains$Title[column_index];
+    facet_data$series = facet_data$category; # "Capability Maturity Level";
+    facet_data$value = facet_data$count;
+
+    plot_data = rbind(
+      plot_data,
+      facet_data
+      );
+    
   }
 
-prepare_data_hypothesis_csp_greater_maturity = function(){
+  plot_data = plyr::arrange(plot_data, facet, category, series);
+    
+  return(plot_data);
+}
+
+plot_hypothesis_cmm_normal = function(){
+  
+  plot_object = plot_barchart_gradients_dodged_series(
+    title = "Distributions of Capability Maturity Levels for IAM and its Sub-Domains",
+    subtitle = "This faceted bar chart shows the distributions of capability maturity levels for IAM and its sub-domains",
+    axis_x_title = "Distribution of Sample Answers (Percentage)",
+    axis_y_title = "Capability Maturity Levels",
+    plot_data = prepare_data_hypothesis_iam_cmm_normal(), 
+    legend_title = "Legend",
+    faceted = TRUE
+  );
+  
+  return(plot_object);
+}
+
+save_plot(
+  plot_object = plot_hypothesis_cmm_normal(),
+  file_name = "IAMPerf2020-Hypothesis-CMM-Normal-BarChart.png",
+  width = 11);
+
+# **************************************
+# * hypothesis_csp_greater_pammaturity *
+# **************************************
+
+prepare_data_hypothesis_csp_greater_pammaturity = function(){
   
   # Retrieve the boolean vector of CSP participants.
   csp_filter = iamperf2020_survey$Q17A5 == "Cloud Services";
@@ -74,7 +131,8 @@ prepare_data_hypothesis_csp_greater_maturity = function(){
   pamtam_cmm_factor = iamperf2020_survey$Q24R6;
   
   # Prepare the two samples.
-  csp_factor = pamtam_cmm_factor[csp_filter];
+  csp_factor = ifelse(csp_filter, as.character(pamtam_cmm_factor), NA);
+  csp_factor = factor(csp_factor, levels = levels(pamtam_cmm_factor), ordered = TRUE);
   all_factor = pamtam_cmm_factor;
   
   prepared_data = data.frame(
@@ -85,9 +143,9 @@ prepare_data_hypothesis_csp_greater_maturity = function(){
   return(prepared_data);
 }
 
-plot_hypothesis_csp_greater_maturity = function(){
+plot_hypothesis_csp_greater_pammaturity = function(){
   
-  plot_data = prepare_data_hypothesis_csp_greater_maturity();
+  plot_data = prepare_data_hypothesis_csp_greater_pammaturity();
   
   csp_series = prepare_data_barchart_with_single_column_coercion(
     plot_data$csp_factor, ordering_option = "level");
@@ -105,10 +163,9 @@ plot_hypothesis_csp_greater_maturity = function(){
       all_series
     );
   
-  plot_data = 
-    plyr::arrange(plot_data, category, series);
+  plot_data = plyr::arrange(plot_data, category, series);
   
-  plot_barchart_gradients_dodged_series(
+  plot_object = plot_barchart_gradients_dodged_series(
     title = "Distributions of Cloud Service Providers vs All Organizations PAM/TAM Capability Maturity Levels",
     subtitle = "This bar chart shows both the PAM/TAM capability maturity levels of Cloud Service Providers and of all organizations",
     axis_x_title = "Distribution of Sample Answers (Percentage)",
@@ -116,14 +173,16 @@ plot_hypothesis_csp_greater_maturity = function(){
     plot_data = plot_data, 
     legend_title = "Legend"
   );
+  
+  return(plot_object);
 }
 
 save_plot(
-  plot_object = plot_hypothesis_csp_greater_maturity(),
+  plot_object = plot_hypothesis_csp_greater_pammaturity(),
   file_name = "IAMPerf2020-Hypothesis-CSP-Greater-PAMMaturity-BarChart.png",
   width = 11);
 
-test_hypothesis_csp_greater_maturity = function(){
+test_hypothesis_csp_greater_pammaturity = function(){
   
   original_hypothesis = "Cloud Service Providers have a higher PAM/TAM Capability Maturity Level than average organizations.";
   h0 = "Cloud Service Providers do not have a higher PAM/TAM Capability Maturity Level than average organizations.";
@@ -133,36 +192,172 @@ test_hypothesis_csp_greater_maturity = function(){
     original_hypothesis = original_hypothesis,
     h0 = h0,
     ha = ha,
-    sample_1 = prepare_data_hypothesis_csp_greater_maturity()$csp_factor,
-    sample_2 = prepare_data_hypothesis_csp_greater_maturity()$all_factor
+    sample_1 = prepare_data_hypothesis_csp_greater_pammaturity()$csp_factor,
+    sample_2 = prepare_data_hypothesis_csp_greater_pammaturity()$all_factor
     );
 }
 
-test_hypothesis_csp_greater_maturity();
+test_hypothesis_csp_greater_pammaturity();
 
-# Hypothesis 3: (?????) Organizations active in the financial services sector 
-# have a higher IAM Capability Maturity Level than average organizations.
+# **************************************
+# * hypothesis_csp_greater_fimmaturity *
+# **************************************
 
-View(iamperf2020_questions);
+prepare_data_hypothesis_csp_greater_fimmaturity = function(){
+  
+  # Retrieve the boolean vector of CSP participants.
+  csp_filter = iamperf2020_survey$Q17A5 == "Cloud Services";
+  
+  # Retrieve the vector 3rd Party IAM Capability Maturity Levels.
+  fim_cmm_factor = iamperf2020_survey$Q24R3;
+  
+  # Prepare the two samples.
+  csp_factor = ifelse(csp_filter, as.character(fim_cmm_factor), NA);
+  csp_factor = factor(csp_factor, levels = levels(fim_cmm_factor), ordered = TRUE);
+  
+  all_factor = fim_cmm_factor;
+  
+  prepared_data = data.frame(
+    csp_factor = csp_factor,
+    all_factor = all_factor
+  );
+  
+  return(prepared_data);
+}
 
-# Industrial sectors: Q17
-View(iamperf2020_q17_industrial_sectors);
-# Q17A5	Cloud Services
-# Q17A22 Financial Services
+plot_hypothesis_csp_greater_fimmaturity = function(){
+  
+  plot_data = prepare_data_hypothesis_csp_greater_fimmaturity();
+  
+  csp_series = prepare_data_barchart_with_single_column_coercion(
+    plot_data$csp_factor, ordering_option = "level");
+  csp_series$series = "Cloud Service Providers";
+  csp_series$value = csp_series$frequency;
+  
+  all_series = prepare_data_barchart_with_single_column_coercion(
+    plot_data$all_factor, ordering_option = "level");
+  all_series$series = "All organizations";
+  all_series$value = all_series$frequency;
+  
+  plot_data = 
+    rbind(
+      csp_series,
+      all_series
+    );
+  
+  plot_data = plyr::arrange(plot_data, category, series);
+  
+  plot_object = plot_barchart_gradients_dodged_series(
+    title = "Distributions of Cloud Service Providers vs All Organizations 3rd Party IAM Capability Maturity Levels",
+    subtitle = "This bar chart shows both the 3rd Party IAM capability maturity levels of Cloud Service Providers and of all organizations",
+    axis_x_title = "Distribution of Sample Answers (Percentage)",
+    axis_y_title = "3rd Party IAM Capability Maturity Levels",
+    plot_data = plot_data, 
+    legend_title = "Legend"
+  );
+  
+  return(plot_object);
+}
 
-financial_services = iamperf2020_survey$Q17A22 == "Financial Services";
+save_plot(
+  plot_object = plot_hypothesis_csp_greater_fimmaturity(),
+  file_name = "IAMPerf2020-Hypothesis-CSP-Greater-FIMMaturity-BarChart.png",
+  width = 11);
 
-# IAM Capability Maturity Level: General: Q24R1
-iam_maturity = iamperf2020_survey$Q24R1;
+test_hypothesis_csp_greater_fimmaturity = function(){
+  
+  original_hypothesis = "Cloud Service Providers have a higher 3rd Party IAM Capability Maturity Level than average organizations.";
+  h0 = "Cloud Service Providers do not have a higher 3rd Party IAM Capability Maturity Level than average organizations.";
+  ha = "Cloud Service Providers have a higher 3rd Party IAM Capability Maturity Level than average organizations."; 
+  
+  test_hypothesis_ordinal_greater(
+    original_hypothesis = original_hypothesis,
+    h0 = h0,
+    ha = ha,
+    sample_1 = prepare_data_hypothesis_csp_greater_fimmaturity()$csp_factor,
+    sample_2 = prepare_data_hypothesis_csp_greater_fimmaturity()$all_factor
+  );
+}
 
-# 3rd Party (FIM) Capability Maturity Level: General: Q24R3
+test_hypothesis_csp_greater_fimmaturity();
 
+# *************************************
+# * hypothesis_fs_greater_iammaturity *
+# *************************************
 
-# PAM/TAM Capability Maturity Level: General: Q24R6
+prepare_data_hypothesis_fs_greater_iammaturity = function(){
+  
+  # Retrieve the boolean vector of FS (Financial Services) participants.
+  fs_filter = iamperf2020_survey$Q17A22 == "Financial Services";
+  
+  # Retrieve the vector PAM/TAM Capability Maturity Levels.
+  iam_cmm_factor = iamperf2020_survey$Q24R1;
 
-plot(pamtam_cmm)
-plot(pamtam_cmm[cloud_services])
+  # Prepare the two samples.
+  fs_factor = ifelse(fs_filter, as.character(iam_cmm_factor), NA);
+  fs_factor = factor(fs_factor, levels = levels(iam_cmm_factor), ordered = TRUE);
+  all_factor = iam_cmm_factor;
+  
+  prepared_data = data.frame(
+    fs_factor = fs_factor,
+    all_factor = all_factor
+  );
+  
+  return(prepared_data);
+}
 
-mean(as.numeric(pamtam_cmm[cloud_services]), na.rm = TRUE)
-mean(as.numeric(pamtam_cmm), na.rm = TRUE)
+plot_hypothesis_fs_greater_iammaturity = function(){
+  
+  raw_data = prepare_data_hypothesis_fs_greater_iammaturity();
+  
+  fs_series = prepare_data_barchart_with_single_column_coercion(
+    raw_data$fs_factor, ordering_option = "level");
+  fs_series$series = "Financial Services";
+  fs_series$value = fs_series$frequency;
+  
+  all_series = prepare_data_barchart_with_single_column_coercion(
+    raw_data$all_factor, ordering_option = "level");
+  all_series$series = "All organizations";
+  all_series$value = all_series$frequency;
+  
+  plot_data = 
+    rbind(
+      fs_series,
+      all_series
+    );
+  
+  plot_data = plyr::arrange(plot_data, category, series);
+  
+  plot_object = plot_barchart_gradients_dodged_series(
+    title = "Distributions of organizations active in the Financial Services sector vs all Organizations IAM Capability Maturity Levels",
+    subtitle = "This bar chart shows both the IAM (general) capability maturity levels of organizations active in the Financial Services sector and of all organizations",
+    axis_x_title = "Distribution of Sample Answers (Percentage)",
+    axis_y_title = "IAM (General) Capability Maturity Levels",
+    plot_data = plot_data, 
+    legend_title = "Legend"
+  );
+  
+  return(plot_object);
+}
 
+save_plot(
+  plot_object = plot_hypothesis_fs_greater_iammaturity(),
+  file_name = "IAMPerf2020-Hypothesis-FS-Greater-IAMMaturity-BarChart.png",
+  width = 11);
+
+test_hypothesis_fs_greater_iammaturity = function(){
+  
+  original_hypothesis = "Organizations active in the Financial Services sector have a higher IAM (General) Capability Maturity Level than average organizations.";
+  h0 = "Organizations active in the Financial Services sector do not have a higher IAM (General) Capability Maturity Level than average organizations.";
+  ha = "Organizations active in the Financial Services sector have a higher IAM (General) Capability Maturity Level than average organizations."; 
+  
+  test_hypothesis_ordinal_greater(
+    original_hypothesis = original_hypothesis,
+    h0 = h0,
+    ha = ha,
+    sample_1 = prepare_data_hypothesis_fs_greater_iammaturity()$fs_factor,
+    sample_2 = prepare_data_hypothesis_fs_greater_iammaturity()$all_factor
+  );
+}
+
+test_hypothesis_fs_greater_iammaturity();

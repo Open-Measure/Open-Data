@@ -376,7 +376,8 @@ plot_barchart_gradients_dodged_series = function(
   # Data structure: series, category, count, label
   legend_title = "Legend",
   x_lim_min = NULL,
-  x_lim_max = NULL
+  x_lim_max = NULL,
+  faceted = FALSE
 ){
   # Returns a GGPlot2 barchart 
   # with gradient colors
@@ -389,7 +390,7 @@ plot_barchart_gradients_dodged_series = function(
   
   x_lim_max = ifelse(
     is.null(x_lim_max), 
-    round(max(plot_data$value) * 1.1,0),
+    ceiling(max(plot_data$value) * 1.1),
     x_lim_max);
   
   plot_object = 
@@ -416,10 +417,6 @@ plot_barchart_gradients_dodged_series = function(
     ) + 
     ggplot2::xlim(x_lim_min, x_lim_max) +
     ggplot2::coord_flip() +
-    #ggplot2::theme(
-    #  panel.spacing = ggplot2::unit(c(.1,.1,.1,.1), "cm"),
-    #  plot.margin = ggplot2::unit(c(.1,.1,.1,.1), "cm")
-    #) +
     ggplot2::labs(
       title = title,
       subtitle = subtitle,
@@ -429,7 +426,12 @@ plot_barchart_gradients_dodged_series = function(
     ) + 
     ggplot2::theme(legend.position = "bottom");
   
+  if(faceted){
+    plot_object = plot_object + facet_wrap(~facet);
+  }
+  
   return(plot_object);
+  
 }
 
 plot_stack_count = function(
