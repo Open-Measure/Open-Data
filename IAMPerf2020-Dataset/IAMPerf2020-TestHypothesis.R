@@ -70,7 +70,7 @@ test_hypothesis_ordinal_greater = function(
 # * Hypothesis IAM CMM is normally distributed *
 # **********************************************
 
-# Question 24
+# Survey Question 24
 
 prepare_data_hypothesis_iam_cmm_normal = function(){
   
@@ -117,6 +117,55 @@ save_plot(
   plot_object = plot_hypothesis_cmm_normal(),
   file_name = "IAMPerf2020-Hypothesis-CMM-Normal-BarChart.png",
   width = 11);
+
+# ****************************************
+# * Team Dedication Association with CMM *
+# ****************************************
+
+# Team Dedication: Survey Question Q20
+# CMM: Survey Question Q24
+
+if(!require("ggExtra")) install.packages("ggExtra");
+prepare_data_hypothesis_association_dedication_cmm = function(){
+  
+  plot_data = iamperf2020_survey[,c("Q20R2","Q24R2")];
+  # Remove NAs
+  plot_data = plot_data[!is.na(plot_data$Q20R2) & 
+                          !is.na(plot_data$Q24R2),];
+  # Summarizes and counts
+  plot_data = as.data.frame(table(plot_data))
+  
+  # Polygonize
+  plot_data$polygon = paste(as.integer(plot_data$Q20R2),
+                            as.integer(plot_data$Q24R2),
+                            sep = "-");
+  
+  plot_data$x = plot_data$Q20R2
+  plot_data$y = plot_data$Q24R2
+  
+  polygon_data = plot_data
+  
+  plot_data$x = plot_data$Q20R2 + 1
+  plot_data$y = plot_data$Q24R2
+  
+  
+  
+  g <- ggplot(plot_data, aes(x = Q24R2, y = Q20R2))
+  g + geom_polygon(
+    shape = 15,
+    ggplot2::aes(col = Freq, size = Freq)
+  ) +
+    scale_color_viridis(discrete=FALSE, direction = -1) +
+        labs(
+          subtitle = "mpg: city vs highway mileage", 
+         x = "X", 
+         y = "Y", 
+         title = "Counts Plot");
+  
+  #ggExtra::ggMarginal(g, type = "histogram", fill="transparent")
+  #ggMarginal(g, type = "boxplot", fill="transparent")
+  
+}
 
 # **************************************
 # * hypothesis_csp_greater_pammaturity *
