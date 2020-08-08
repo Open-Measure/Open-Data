@@ -125,46 +125,117 @@ save_plot(
 # Team Dedication: Survey Question Q20
 # CMM: Survey Question Q24
 
+# Declare a sub-function that will be used to prepare
+# the faceted datasets, including their relative percentages.
+prepare_facet_data_hypothesis_association_dedication_cmm = function(
+  column_index,
+  remove_na = TRUE,
+  summarize = TRUE){
+  column_1 = paste("Q20R", column_index, sep = ""); # Team Dedication
+  column_2 = paste("Q24R", column_index, sep = ""); # Capability Maturity
+  
+  data_subset = iamperf2020_survey[,c(column_1, column_2)];
+  colnames(data_subset) = c("TeamDedication", "CapabilityMaturity");
+  
+  if(remove_na){
+    # Remove NAs
+    data_subset = data_subset[
+      !is.na(data_subset$TeamDedication) & 
+        !is.na(data_subset$CapabilityMaturity),];
+  }
+  
+  if(summarize){
+    # Summarizes and counts 
+    data_subset = as.data.frame(table(data_subset));
+    
+    data_count_label = paste("(", data_subset$Freq, ")", sep = "");
+    data_count_total = sum(data_subset$Freq);
+    data_subset$Ratio = data_subset$Freq / data_count_total;
+    data_ratio_label = paste(rounded_ratios_with_largest_remainder(data_subset$Ratio, digits = 1), "%");
+    data_subset$Label = paste(data_ratio_label, data_count_label, sep = "\n");
+    
+    data_subset$Facet = as.character(
+      iamperf2020_q24_domains$Title[
+        iamperf2020_q24_domains$X == column_2]);
+  }
+
+  return(data_subset);
+}
+
 if(!require("ggExtra")) install.packages("ggExtra");
-prepare_data_hypothesis_association_dedication_cmm = function(){
+plot_hypothesis_association_dedication_cmm = function(){
   
-  plot_data = iamperf2020_survey[,c("Q20R2","Q24R2")];
-  # Remove NAs
-  plot_data = plot_data[!is.na(plot_data$Q20R2) & 
-                          !is.na(plot_data$Q24R2),];
-  # Summarizes and counts
-  plot_data = as.data.frame(table(plot_data))
+  plot_data = 
+    rbind(
+      prepare_facet_data_hypothesis_association_dedication_cmm(1, TRUE, TRUE),
+      prepare_facet_data_hypothesis_association_dedication_cmm(2, TRUE, TRUE),
+      prepare_facet_data_hypothesis_association_dedication_cmm(3, TRUE, TRUE),
+      prepare_facet_data_hypothesis_association_dedication_cmm(4, TRUE, TRUE),
+      prepare_facet_data_hypothesis_association_dedication_cmm(5, TRUE, TRUE),
+      prepare_facet_data_hypothesis_association_dedication_cmm(6, TRUE, TRUE)
+      );
+
+  plot_object <- ggplot(
+    plot_data, 
+    aes(
+      x = CapabilityMaturity, 
+      y = TeamDedication, 
+      label = Label,
+      size = Ratio, 
+      colour = Ratio
+      )
+    ) +
+    geom_point(
+      alpha = 1
+      ) +
+    geom_text(
+      color = "#000000", 
+      size = 3, 
+      nudge_x = -.43, 
+      angle = 90) +
+    theme(
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+      legend.position = "none"
+      ) +
+    facet_wrap(~ Facet, ncol = 2) +
+    scale_size(range = c(.1, 24), name = "Frequency") +
+    scale_color_viridis(discrete = FALSE, direction = -1) +
+    labs(
+      subtitle = "This bubble chart shows the association between team dedication and capability maturity ordinal categories.", 
+      x = "Capability Maturity", 
+      y = "Team Dedication", 
+      title = "Association between Team Dedication and Capability Maturity"
+      );
+    
+  return(plot_object);
+}
+
+save_plot(
+  plot_object = plot_hypothesis_association_dedication_cmm(),
+  file_name = "IAMPerf2020-Hypothesis-TeamDedication-Association-CMM-BubbleChart.png",
+  width = 11,
+  height = 9);
+
+test_hypothesis_association_dedication_cmm = function(){
+
+  test_report = "";
   
-  # Polygonize
-  plot_data$polygon = paste(as.integer(plot_data$Q20R2),
-                            as.integer(plot_data$Q24R2),
-                            sep = "-");
-  
-  plot_data$x = plot_data$Q20R2
-  plot_data$y = plot_data$Q24R2
-  
-  polygon_data = plot_data
-  
-  plot_data$x = plot_data$Q20R2 + 1
-  plot_data$y = plot_data$Q24R2
-  
-  
-  
-  g <- ggplot(plot_data, aes(x = Q24R2, y = Q20R2))
-  g + geom_polygon(
-    shape = 15,
-    ggplot2::aes(col = Freq, size = Freq)
-  ) +
-    scale_color_viridis(discrete=FALSE, direction = -1) +
-        labs(
-          subtitle = "mpg: city vs highway mileage", 
-         x = "X", 
-         y = "Y", 
-         title = "Counts Plot");
-  
-  #ggExtra::ggMarginal(g, type = "histogram", fill="transparent")
-  #ggMarginal(g, type = "boxplot", fill="transparent")
-  
+  for(domain_index in 1 : 6){
+    domain_title = as.character(iamperf2020_q21_domains$Title[domain_index]);
+    test_data = prepare_facet_data_hypothesis_association_dedication_cmm(domain_index, FALSE, FALSE);
+    test_subreport = test_kendall_tau(
+      test_data$TeamDedication,
+      test_data$CapabilityMaturity
+    );
+
+    test_report = paste(
+      test_report,
+      paste(domain_title, test_subreport, sep = "\n"),
+      sep = "\n\n"
+    );
+  }
+    
+  return(test_report);
 }
 
 # **************************************
@@ -409,4 +480,6 @@ test_hypothesis_fs_greater_iammaturity = function(){
   );
 }
 
-test_hypothesis_fs_greater_iammaturity();
+test_hypothesis_fs_greater_iammaturity()
+
+

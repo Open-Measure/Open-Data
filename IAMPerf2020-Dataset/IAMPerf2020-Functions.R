@@ -57,7 +57,8 @@ save_plot = function(
       plot = plot_object,
       dpi = 300,
       limitsize = FALSE,
-      width = width
+      width = width,
+      height = height
     );
   }
 }
@@ -131,6 +132,50 @@ rounded_ratios_with_largest_remainder = function(
   deflated_election = election / 10 ^ digits;
   return(deflated_election);
 };
+
+test_kendall_tau = function(
+  sample_1_factor, 
+  sample_2_factor){
+
+  # It is expected that factors are properly ordered.
+  sample_1_numeric = as.numeric(sample_1_factor);
+  sample_2_numeric = as.numeric(sample_2_factor);
+  
+  test_results = cor.test(
+    sample_1_numeric, 
+    sample_2_numeric,  
+    method="kendall", 
+    exact = FALSE);
+  #Kendall::Kendall(
+  #  plot_data$MaturityNumeric,
+  #  plot_data$CoverageNumeric
+  #  );
+  
+  friendly_test_results = paste(
+    "Test type: Kendall's 𝜏 coefficient (two-sided test)",
+    "H₀: 𝜏 = 0",
+    "Hₐ: 𝜏 ≠ 0",
+    paste("Total observations: ", 
+          length(sample_1_numeric), 
+          sep=""),
+    paste("Valid observations (pairs of non-N/As: "), 
+          lensum           !is.na(sample_1_numeric) & 
+              !.na(sample_2_numeric)
+               ),
+          =""),
+    paste("n (core: ", format(test_result$stsatistic["z"], digits = 6), sep=""),
+    paste("p-value: ", format(test_result$p.svalue, digits = 6, scientific = FALSE), sep=""),
+    paste("𝜏 estimate: ", format(test_result$estsimate["tau"], digits = 6), " - ", format(test_results$conf.int[2], digits = 4), sep=""),
+    paste(
+      "Conclusion: ", 
+      ifelse(test_result$p.vsalue < .05, "Reject", "Fail to reject"),
+      " H₀",
+      sep = ""),
+    sep = "\n");
+  
+  return(friendly_test_results);
+
+}
 
 plot_statistical_test = function(test_results){
   plot_object = 
