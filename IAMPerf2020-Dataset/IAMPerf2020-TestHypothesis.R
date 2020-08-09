@@ -119,14 +119,14 @@ save_plot(
   width = 11);
 
 # ****************************************
-# * Team Dedication Association with CMM *
+# * Comparing Team Specialization with Capability Maturity *
 # ****************************************
 
 # Team Dedication: Survey Question Q20
 # CMM: Survey Question Q24
 
-# Declare a sub-function that will be used to prepare
-# the faceted datasets, including their relative percentages.
+# ARCHIVED: THIS FUNCTION IS NO LONGER USED
+# Approach used to generate Bubble Charts.
 prepare_facet_data_hypothesis_association_dedication_cmm = function(
   column_index,
   remove_na = TRUE,
@@ -162,8 +162,8 @@ prepare_facet_data_hypothesis_association_dedication_cmm = function(
   return(data_subset);
 }
 
-if(!require("ggExtra")) install.packages("ggExtra");
-plot_hypothesis_association_dedication_cmm = function(){
+# ARCHIVED: THIS FUNCTION IS NO-LONGER USED.
+plot_hypothesis_association_dedication_cmm_bubblechart = function(){
   
   plot_data = 
     rbind(
@@ -173,8 +173,8 @@ plot_hypothesis_association_dedication_cmm = function(){
       prepare_facet_data_hypothesis_association_dedication_cmm(4, TRUE, TRUE),
       prepare_facet_data_hypothesis_association_dedication_cmm(5, TRUE, TRUE),
       prepare_facet_data_hypothesis_association_dedication_cmm(6, TRUE, TRUE)
-      );
-
+    );
+  
   plot_object <- ggplot(
     plot_data, 
     aes(
@@ -183,11 +183,11 @@ plot_hypothesis_association_dedication_cmm = function(){
       label = Label,
       size = Ratio, 
       colour = Ratio
-      )
-    ) +
+    )
+  ) +
     geom_point(
       alpha = 1
-      ) +
+    ) +
     geom_text(
       color = "#000000", 
       size = 3, 
@@ -196,7 +196,7 @@ plot_hypothesis_association_dedication_cmm = function(){
     theme(
       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
       legend.position = "none"
-      ) +
+    ) +
     facet_wrap(~ Facet, ncol = 2) +
     scale_size(range = c(.1, 24), name = "Frequency") +
     scale_color_viridis(discrete = FALSE, direction = -1) +
@@ -205,38 +205,150 @@ plot_hypothesis_association_dedication_cmm = function(){
       x = "Capability Maturity", 
       y = "Team Dedication", 
       title = "Association between Team Dedication and Capability Maturity"
-      );
-    
+    );
+  
   return(plot_object);
 }
 
-save_plot(
-  plot_object = plot_hypothesis_association_dedication_cmm(),
-  file_name = "IAMPerf2020-Hypothesis-TeamDedication-Association-CMM-BubbleChart.png",
-  width = 11,
-  height = 9);
+# Enhanced approach used to generate faceted Bar Charts
+# along 2 dimensions: domain x specialization.
+prepare_data_hypothesis_specializations_cmm_barchart = function(){
+  
+  plot_data = data.frame();
+  
+  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
+    domain_column = as.character(iamperf2020_q24_domains$X[domain_index]);
+    domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
+    # Hopefuly, domain indexes are identical.
+    specialization_column = as.character(iamperf2020_q20_domains$X[domain_index]);
+    for(specialization_index in 1:nrow(iamperf2020_q20_team_dedication)){
+      specialization_level = as.character(iamperf2020_q20_team_dedication$Title[specialization_index]);
+      specialization_filter = iamperf2020_survey[,specialization_column] == specialization_level;
+      facet_data = prepare_data_barchart_with_single_column_coercion(
+        iamperf2020_survey[
+          specialization_filter
+          ,domain_column
+          ], 
+        ordering_option = "level");
+      
+      facet_data$facet = domain_title;
+      facet_data$facet_2 = specialization_level;
+      facet_data$series = facet_data$category; #"Capability Maturity Level";
+      #facet_data$value = facet_data$count;
+      facet_data$value = facet_data$frequency;
+
+      plot_data = rbind(
+        plot_data,
+        facet_data
+      );
+      
+    }
+  }
+  
+  plot_data = plyr::arrange(plot_data, facet, facet_2, category, series);
+  
+  # We want ordered factors
+  # factor order will be re-used in GGPlot2
+  plot_data$facet = factor(
+    plot_data$facet,
+    levels = c(
+      "IAM (general answer)", "Workforce IAM", "PAM / TAM",
+      "Customer IAM", "3rd Party IAM", "IoT IAM")
+    ); 
+  plot_data$facet_2 = factor(
+    plot_data$facet_2, 
+    levels = c( "Predominantly shared", "Balanced", "Predominantly dedicated"),
+    ordered = TRUE
+    );
+  
+  return(plot_data);
+}
+
+test_hypothesis_specializations_cmm_derrick = function(){
+  
+  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
+    domain_column = as.character(iamperf2020_q24_domains$X[domain_index]);
+    domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
+    # Hopefuly, domain indexes are identical.
+    specialization_column = as.character(iamperf2020_q20_domains$X[domain_index]);
+    specialization_index = 3;
+    specialization_level = as.character(iamperf2020_q20_team_dedication$Title[specialization_index]);
+    specialization_filter = iamperf2020_survey[,specialization_column] == specialization_level;
+    specialization_index_shared = 1;
+    specialization_level_shared = as.character(iamperf2020_q20_team_dedication$Title[specialization_index_shared]);
+    specialization_filter_shared = iamperf2020_survey[,specialization_column] == specialization_level_shared;
+    
+    mean(as.numeric(ifelse(specialization_filter, iamperf2020_survey[, domain_column], NA)), na.rm = TRUE)
+    mean(as.numeric(ifelse(specialization_filter_shared, iamperf2020_survey[, domain_column], NA)), na.rm = TRUE)
+    
+    # PREDOMINANTLY DEDICATED
+    test_hypothesis_ordinal_greater(
+      original_hypothesis = "original_hypothesis",
+      h0 = "h0",
+      ha = "ha",
+      sample_1 = as.numeric(ifelse(specialization_filter, iamperf2020_survey[, domain_column], NA)),
+      sample_2 = as.numeric(iamperf2020_survey[, domain_column])
+    );
+    
+    test_kendall_tau(
+      iamperf2020_survey[, domain_column],
+      iamperf2020_survey[, specialization_column]
+      )
+    
+  }
+}
+
+plot_hypothesis_association_dedication_cmm_bubblechart = function(){
+  
+  plot_data = prepare_data_hypothesis_specializations_cmm_barchart();
+  
+  plot_barchart_gradients_dodged_series(
+    title = "Comparing Specialization with Capability Maturity",
+    subtitle = "This faceted bar chart shows the capability maturity distributions of survey answers organized by domains and level of specialization",
+    axis_x_title = "Domain",
+    axis_y_title = "Capability Maturity",
+    plot_data = plot_data, # Pre-summarized data with multiple series
+    # Data structure: series, category, count, label
+    legend_title = "Legend",
+    x_lim_min = NULL,
+    x_lim_max = NULL,
+    faceted = FALSE,
+    grid_faceted = TRUE,
+    geom_text_angle = 0,
+    geom_text_hjust = .5,
+    geom_text_vjust = -.3,
+    axis_text_x_blank = TRUE
+    #ncol = 3
+  );
+  
+}
 
 test_hypothesis_association_dedication_cmm = function(){
 
-  test_report = "";
+  #test_report = "";
   
   for(domain_index in 1 : 6){
     domain_title = as.character(iamperf2020_q21_domains$Title[domain_index]);
+    cat(domain_title, "\n");
     test_data = prepare_facet_data_hypothesis_association_dedication_cmm(domain_index, FALSE, FALSE);
     test_subreport = test_kendall_tau(
       test_data$TeamDedication,
       test_data$CapabilityMaturity
     );
+    plot(test_data);
 
-    test_report = paste(
-      test_report,
-      paste(domain_title, test_subreport, sep = "\n"),
-      sep = "\n\n"
-    );
+    #test_report = paste(
+    #  test_report,
+    #  paste(domain_title, test_subreport, sep = "\n"),
+    #  sep = "\n\n"
+    #);
   }
     
-  return(test_report);
+  #return(test_report);
 }
+
+test_hypothesis_association_dedication_cmm();
+
 
 # **************************************
 # * hypothesis_csp_greater_pammaturity *

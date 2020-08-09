@@ -141,39 +141,52 @@ test_kendall_tau = function(
   sample_1_numeric = as.numeric(sample_1_factor);
   sample_2_numeric = as.numeric(sample_2_factor);
   
+  cat(paste("Total observations: ", 
+        length(sample_1_numeric), 
+        "\n",
+        sep=""));
+  cat(paste("Valid observations (pairs of non-N/As): ", 
+        sum(
+          !is.na(sample_1_numeric) & 
+            !is.na(sample_2_numeric)
+        ),
+        "\n",
+        sep=""));
+  
+  print(cor(
+    cbind(sample_1_numeric, sample_2_numeric), 
+    method="kendall", 
+    use="pairwise"));
+  
   test_results = cor.test(
     sample_1_numeric, 
     sample_2_numeric,  
     method="kendall", 
     exact = FALSE);
+  print(test_results);
   #Kendall::Kendall(
   #  plot_data$MaturityNumeric,
   #  plot_data$CoverageNumeric
   #  );
   
-  friendly_test_results = paste(
-    "Test type: Kendall's 𝜏 coefficient (two-sided test)",
-    "H₀: 𝜏 = 0",
-    "Hₐ: 𝜏 ≠ 0",
-    paste("Total observations: ", 
-          length(sample_1_numeric), 
-          sep=""),
-    paste("Valid observations (pairs of non-N/As: "), 
-          lensum           !is.na(sample_1_numeric) & 
-              !.na(sample_2_numeric)
-               ),
-          =""),
-    paste("n (core: ", format(test_result$stsatistic["z"], digits = 6), sep=""),
-    paste("p-value: ", format(test_result$p.svalue, digits = 6, scientific = FALSE), sep=""),
-    paste("𝜏 estimate: ", format(test_result$estsimate["tau"], digits = 6), " - ", format(test_results$conf.int[2], digits = 4), sep=""),
+  #friendly_test_results = paste(
+  #  "Test type: Kendall's 𝜏 coefficient (two-sided test)",
+  #  "H₀: 𝜏 = 0",
+  #  "Hₐ: 𝜏 ≠ 0",
+  #  paste("z-score: ", format(test_results$statistic["z"], digits = 6), sep=""),
+  #  paste("p-value: ", format(test_results$p.value, digits = 6, scientific = FALSE), sep=""),
+  #  paste("𝜏 estimate: ", format(test_results$estimate["tau"], digits = 6), " - ", format(test_results$conf.int[2], digits = 4), sep=""),
+  cat(
     paste(
       "Conclusion: ", 
-      ifelse(test_result$p.vsalue < .05, "Reject", "Fail to reject"),
+      ifelse(test_results$p.value < .05, "Reject", "Fail to reject"),
       " H₀",
-      sep = ""),
-    sep = "\n");
+      "\n\n",
+      sep = ""
+      )
+  );
   
-  return(friendly_test_results);
+  #return(friendly_test_results);
 
 }
 
@@ -422,7 +435,14 @@ plot_barchart_gradients_dodged_series = function(
   legend_title = "Legend",
   x_lim_min = NULL,
   x_lim_max = NULL,
-  faceted = FALSE
+  faceted = FALSE,
+  grid_faceted = FALSE,
+  geom_text_angle = 90,
+  geom_text_hjust = -.5,
+  geom_text_vjust = 0
+  #,
+  axis_text_x_blank = FALSEnrow = NULL,
+  #ncol = NULL
 ){
   # Returns a GGPlot2 barchart 
   # with gradient colors
@@ -453,10 +473,11 @@ plot_barchart_gradients_dodged_series = function(
     ) + 
     viridis::scale_fill_viridis(discrete = TRUE, direction = -1) +
     ggplot2::geom_text(
-      angle = 90,
+      angle = geom_text_angle,
       ggplot2::aes(label = label), 
-      hjust = -.5, 
-      size = 3,
+      hjust = geom_text_hjust, 
+      sizevjust = geom_text_vjust,
+       = 3,
       position = position_dodge(width = 1),
       inherit.aes = TRUE
     ) + 
@@ -469,10 +490,21 @@ plot_barchart_gradients_dodged_series = function(
       x = axis_x_title,
       y = axis_y_title
     ) + 
-    ggplot2::theme(legend.position = "bottom");
-  
-  if(faceted){
+;
+ ggif(axis_text_x_blank){
+    plot_object = plot_object + ggplot2::theme(
+      legend.position = "bottom",
+      axis.text.x = element_blank())
+  } else {
+    plot_object = plot_object + ggplot2::theme(
+      legend.position = "bottom")
+  }
+f(faceted){
     plot_object = plot_object + facet_wrap(~facet);
+  }
+
+  if(grid_faceted){
+    plot_object = plot_object + facet_grid(facet ~ facet_2);
   }
   
   return(plot_object);
