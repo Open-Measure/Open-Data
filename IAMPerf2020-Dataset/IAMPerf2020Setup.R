@@ -51,6 +51,16 @@ iamperf2020_q32_leading_vs_lagging_levels <- read.csv (text = RCurl::getURL(past
 iamperf2020_q38_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q38PolarQuestionLevels.csv")));
 iamperf2020_q39_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q39PolarQuestionLevels.csv")));
 iamperf2020_q40_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q40PolarQuestionLevels.csv")));
+iamperf2020_duplicate_responses <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020-DuplicateResponses.csv")));
+
+# Clean the dataset from the duplicate entries identified manually.
+# Look at the Justification column for more information on the reason
+# why these records should be removed from the dataset.
+iamperf2020_survey = iamperf2020_survey[
+  !(
+    iamperf2020_survey$ResponseID %in% 
+    iamperf2020_duplicate_responses$DuplicateResponseID),
+  ];
 
 # Q9: Apply nicely labeled and properly unordered factors.
 iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);

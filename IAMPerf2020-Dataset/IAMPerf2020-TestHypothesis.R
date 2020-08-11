@@ -2,17 +2,25 @@
 if(!require("stats")) install.packages("stats");
 if(!require("Partiallyoverlapping")) install.packages("Partiallyoverlapping");
 test_hypothesis_ordinal_greater = function(
-  original_hypothesis,
+  original_hypothesis = NULL,
   h0,
   ha,
   sample_1,
-  sample_2
+  sample_2,
+  alternative = "greater"
 ) {
   
-  cat("Original hypothesis:", original_hypothesis, "\n\n");
+  cat("PARTIALLY OVERLAPPING SAMPLES T-TEST as per Derrick et al. (2017)\n")
+  # Bibliography:
+  # Derrick, B., White, P., 2018. Methods for comparing the responses from a Likert question, with paired observations and independent observations in each of two samples 10.
+  cat("Execution of the statistical test using the 'Partover.test' function of the 'Partiallyoverlapping' R package.\n");
+  
+  if(!is.null(original_hypothesis)){
+    cat("Original hypothesis:", original_hypothesis, "\n");
+  }
   # This transformation is acceptable because the Wilcoxon test accepts ordinal variables.
-  cat("H0:", h0, "\n");
-  cat("Ha:", ha, "\n\n"); 
+  cat("H0: ", h0, "\n");
+  cat("Ha: ", ha, "\n"); 
  
   # "Naive" approache with Wilcoxon test. Later discarded.
   #cat("WILCOXON SIGNED RANK SUM TEST (WSRST) \n\n");
@@ -37,15 +45,10 @@ test_hypothesis_ordinal_greater = function(
   #    cat("The test is not statistically significant.\n\n");
   #  };
   
-  cat("PARTIALLY OVERLAPPING SAMPLES T-TEST as per Derrick et al. (2017)\n\n")
-  # Bibliography:
-  # Derrick, B., White, P., 2018. Methods for comparing the responses from a Likert question, with paired observations and independent observations in each of two samples 10.
-  cat("Execute the statistical test using the 'Partover.test' function of the 'Partiallyoverlapping' R package:\n")
-  
   derrick_test_outcome = Partiallyoverlapping::Partover.test(
     x1 = as.numeric(sample_1), 
     x2 = as.numeric(sample_2),
-    alternative = "greater",
+    alternative = alternative,
     conf.level = .95,
     stacked = TRUE
     );
@@ -59,9 +62,9 @@ test_hypothesis_ordinal_greater = function(
   cat("A confidence interval for the mean difference appropriate to the specified alternative hypothesis:", derrick_test_outcome$conf.int, "\n\n");
   if(derrick_test_outcome$p.value < .05)
     { 
-      cat("The test is statistically significant.\n\n"); 
+      cat("The test is statistically significant.\n"); 
     } else {
-      cat("The test is not statistically significant.\n\n");
+      cat("The test is not statistically significant.\n");
     };
   
 }
@@ -221,11 +224,11 @@ prepare_data_hypothesis_specializations_cmm_barchart = function(){
     domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
     # Hopefuly, domain indexes are identical.
     specialization_column = as.character(iamperf2020_q20_domains$X[domain_index]);
-    for(specialization_index in 1:nrow(iamperf2020_q20_team_dedication)){
-      specialization_level = as.character(iamperf2020_q20_team_dedication$Title[specialization_index]);
-      specialization_filter = iamperf2020_survey[,specialization_column] == specialization_level;
+    for(specialization_index_dedicated in 1:nrow(iamperf2020_q20_team_dedication)){
+      specialization_level =_dedicated as.character(iamperf2020_q20_team_dedication$Title[specialization_index_dedicated]);
+      specialization_filter =_dedicated iamperf2020_survey[,specialization_column] == specialization_level;_dedicated
       facet_data = prepare_data_barchart_with_single_column_coercion(
-        iamperf2020_survey[
+_dedicated        iamperf2020_survey[
           specialization_filter
           ,domain_column
           ], 
@@ -266,36 +269,59 @@ prepare_data_hypothesis_specializations_cmm_barchart = function(){
 
 test_hypothesis_specializations_cmm_derrick = function(){
   
+  table_result = data.frame();
+  
   for(domain_index in 1:nrow(iamperf2020_q24_domains)){
     domain_column = as.character(iamperf2020_q24_domains$X[domain_index]);
     domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
     # Hopefuly, domain indexes are identical.
     specialization_column = as.character(iamperf2020_q20_domains$X[domain_index]);
-    specialization_index = 3;
-    specialization_level = as.character(iamperf2020_q20_team_dedication$Title[specialization_index]);
-    specialization_filter = iamperf2020_survey[,specialization_column] == specialization_level;
+    specialization_index_dedicated = 3;
+    specialization_level_dedicated = as.character(iamperf2020_q20_team_dedication$Title[specialization_index_dedicated]);
+    specialization_filter_dedicated = iamperf2020_survey[,specialization_column] == specialization_level_dedicated;
     specialization_index_shared = 1;
     specialization_level_shared = as.character(iamperf2020_q20_team_dedication$Title[specialization_index_shared]);
     specialization_filter_shared = iamperf2020_survey[,specialization_column] == specialization_level_shared;
     
-    mean(as.numeric(ifelse(specialization_filter, iamperf2020_survey[, domain_column], NA)), na.rm = TRUE)
-    mean(as.numeric(ifelse(specialization_filter_shared, iamperf2020_survey[, domain_column], NA)), na.rm = TRUE)
-    
     # PREDOMINANTLY DEDICATED
     test_hypothesis_ordinal_greater(
-      original_hypothesis = "original_hypothesis",
-      h0 = "h0",
-      ha = "ha",
-      sample_1 = as.numeric(ifelse(specialization_filter, iamperf2020_survey[, domain_column], NA)),
+      h0 = paste(
+        "The mean capability maturity level of organizations having dedicated teams in ", 
+        domain_title,
+        " is not higher than average.",
+        sep = ""),
+      ha = paste(
+        "The mean capability maturity level of organizations having dedicated teams in ", 
+        domain_title,
+        " is higher than average.",
+        sep = ""),
+      sample_1 = as.numeric(ifelse(specialization_filter_dedicated, iamperf2020_survey[, domain_column], NA)),
       sample_2 = as.numeric(iamperf2020_survey[, domain_column])
-    );
+      );
+
+    cat(".................................................", "\n\n", sep = "");
     
-    test_kendall_tau(
-      iamperf2020_survey[, domain_column],
-      iamperf2020_survey[, specialization_column]
-      )
+    test_hypothesis_ordinal_greater(
+      h0 = paste(
+        "The mean capability maturity level of organizations having predominantly shared teams in ", 
+        domain_title,
+        " is not lower than average.",
+        sep = ""),
+      ha = paste(
+        "The mean capability maturity level of organizations having dedicated teams in ", 
+        domain_title,
+        " is lower than average.",
+        sep = ""),
+      sample_1 = as.numeric(ifelse(specialization_filter_shared, iamperf2020_survey[, domain_column], NA)),
+      sample_2 = as.numeric(iamperf2020_survey[, domain_column]),
+      alternative = "less"
+      );
+    
+    cat(".................................................", "\n\n", sep = "");
+    
     
   }
+  
 }
 
 plot_hypothesis_association_dedication_cmm_bubblechart = function(){
