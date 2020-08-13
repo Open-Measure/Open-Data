@@ -225,10 +225,10 @@ prepare_data_hypothesis_specializations_cmm_barchart = function(){
     # Hopefuly, domain indexes are identical.
     specialization_column = as.character(iamperf2020_q20_domains$X[domain_index]);
     for(specialization_index_dedicated in 1:nrow(iamperf2020_q20_team_dedication)){
-      specialization_level =_dedicated as.character(iamperf2020_q20_team_dedication$Title[specialization_index_dedicated]);
-      specialization_filter =_dedicated iamperf2020_survey[,specialization_column] == specialization_level;_dedicated
+      specialization_level = as.character(iamperf2020_q20_team_dedication$Title[specialization_index_dedicated]);
+      specialization_filter = iamperf2020_survey[,specialization_column] == specialization_level;
       facet_data = prepare_data_barchart_with_single_column_coercion(
-_dedicated        iamperf2020_survey[
+        iamperf2020_survey[
           specialization_filter
           ,domain_column
           ], 
@@ -324,7 +324,7 @@ test_hypothesis_specializations_cmm_derrick = function(){
   
 }
 
-plot_hypothesis_association_dedication_cmm_bubblechart = function(){
+plot_hypothesis_association_dedication_cmm_barchart = function(){
   
   plot_data = prepare_data_hypothesis_specializations_cmm_barchart();
   

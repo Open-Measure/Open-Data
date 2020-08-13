@@ -439,9 +439,10 @@ plot_barchart_gradients_dodged_series = function(
   grid_faceted = FALSE,
   geom_text_angle = 90,
   geom_text_hjust = -.5,
-  geom_text_vjust = 0
+  geom_text_vjust = 0,
   #,
-  axis_text_x_blank = FALSEnrow = NULL,
+  axis_text_x_blank = FALSE,
+  nrow = NULL
   #ncol = NULL
 ){
   # Returns a GGPlot2 barchart 
@@ -476,8 +477,8 @@ plot_barchart_gradients_dodged_series = function(
       angle = geom_text_angle,
       ggplot2::aes(label = label), 
       hjust = geom_text_hjust, 
-      sizevjust = geom_text_vjust,
-       = 3,
+      size = 3,
+      vjust = geom_text_vjust,
       position = position_dodge(width = 1),
       inherit.aes = TRUE
     ) + 
@@ -489,9 +490,9 @@ plot_barchart_gradients_dodged_series = function(
       fill = legend_title,
       x = axis_x_title,
       y = axis_y_title
-    ) + 
-;
- ggif(axis_text_x_blank){
+    );
+  
+  if(axis_text_x_blank){
     plot_object = plot_object + ggplot2::theme(
       legend.position = "bottom",
       axis.text.x = element_blank())
@@ -499,7 +500,8 @@ plot_barchart_gradients_dodged_series = function(
     plot_object = plot_object + ggplot2::theme(
       legend.position = "bottom")
   }
-f(faceted){
+  
+  if(faceted){
     plot_object = plot_object + facet_wrap(~facet);
   }
 

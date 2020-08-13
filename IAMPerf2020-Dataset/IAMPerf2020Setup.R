@@ -148,12 +148,12 @@ iamperf2020_survey$Q18 = factor(
 # In the original dataset, the factor order (column X) is counter-intuitive:
 # Predominantly dedicated < Balanced < Predominantly shared
 # So we first inverse the 1,2,3 values to 3,2,1:
-iamperf2020_survey$Q20R1 = - iamperf2020_survey$Q20R1 + 4;
-iamperf2020_survey$Q20R2 = - iamperf2020_survey$Q20R2 + 4;
-iamperf2020_survey$Q20R3 = - iamperf2020_survey$Q20R3 + 4;
-iamperf2020_survey$Q20R4 = - iamperf2020_survey$Q20R4 + 4;
-iamperf2020_survey$Q20R5 = - iamperf2020_survey$Q20R5 + 4;
-iamperf2020_survey$Q20R6 = - iamperf2020_survey$Q20R6 + 4;
+#iamperf2020_survey$Q20R1 = - iamperf2020_survey$Q20R1 + 4;
+#iamperf2020_survey$Q20R2 = - iamperf2020_survey$Q20R2 + 4;
+#iamperf2020_survey$Q20R3 = - iamperf2020_survey$Q20R3 + 4;
+#iamperf2020_survey$Q20R4 = - iamperf2020_survey$Q20R4 + 4;
+#iamperf2020_survey$Q20R5 = - iamperf2020_survey$Q20R5 + 4;
+#iamperf2020_survey$Q20R6 = - iamperf2020_survey$Q20R6 + 4;
 # Column X2 provides the corrected (inversed) factor order.
 iamperf2020_survey$Q20R1 = factor(iamperf2020_survey$Q20R1, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q20R2 = factor(iamperf2020_survey$Q20R2, levels = iamperf2020_q20_team_dedication$X, labels = iamperf2020_q20_team_dedication$Title, ordered = TRUE, exclude = NA);
@@ -166,12 +166,12 @@ iamperf2020_survey$Q20R6 = factor(iamperf2020_survey$Q20R6, levels = iamperf2020
 # In the original dataset, the factor order (column X) is counter-intuitive:
 # Centralized < Balanced < De-centralized
 # So we first inverse the 1,2,3 values to 3,2,1:
-iamperf2020_survey$Q21R1 = - iamperf2020_survey$Q21R1 + 4;
-iamperf2020_survey$Q21R2 = - iamperf2020_survey$Q21R2 + 4;
-iamperf2020_survey$Q21R3 = - iamperf2020_survey$Q21R3 + 4;
-iamperf2020_survey$Q21R4 = - iamperf2020_survey$Q21R4 + 4;
-iamperf2020_survey$Q21R5 = - iamperf2020_survey$Q21R5 + 4;
-iamperf2020_survey$Q21R6 = - iamperf2020_survey$Q21R6 + 4;
+#iamperf2020_survey$Q21R1 = - iamperf2020_survey$Q21R1 + 4;
+#iamperf2020_survey$Q21R2 = - iamperf2020_survey$Q21R2 + 4;
+#iamperf2020_survey$Q21R3 = - iamperf2020_survey$Q21R3 + 4;
+#iamperf2020_survey$Q21R4 = - iamperf2020_survey$Q21R4 + 4;
+#iamperf2020_survey$Q21R5 = - iamperf2020_survey$Q21R5 + 4;
+#iamperf2020_survey$Q21R6 = - iamperf2020_survey$Q21R6 + 4;
 # Column X2 provides the corrected (inversed) factor order.
 iamperf2020_survey$Q21R1 = factor(iamperf2020_survey$Q21R1, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
 iamperf2020_survey$Q21R2 = factor(iamperf2020_survey$Q21R2, levels = iamperf2020_q21_centralization$X, labels = iamperf2020_q21_centralization$Title, ordered = TRUE, exclude = NA);
