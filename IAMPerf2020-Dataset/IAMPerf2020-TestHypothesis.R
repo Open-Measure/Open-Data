@@ -286,12 +286,12 @@ test_hypothesis_specializations_cmm_derrick = function(){
     # PREDOMINANTLY DEDICATED
     test_hypothesis_ordinal_greater(
       h0 = paste(
-        "The mean capability maturity level of organizations having dedicated teams in ", 
+        "The mean capability maturity level of organizations having predominantly specialized / dedicated teams in ", 
         domain_title,
         " is not higher than average.",
         sep = ""),
       ha = paste(
-        "The mean capability maturity level of organizations having dedicated teams in ", 
+        "The mean capability maturity level of organizations having predominantly specialized / dedicated teams in ", 
         domain_title,
         " is higher than average.",
         sep = ""),
@@ -303,12 +303,12 @@ test_hypothesis_specializations_cmm_derrick = function(){
     
     test_hypothesis_ordinal_greater(
       h0 = paste(
-        "The mean capability maturity level of organizations having predominantly shared teams in ", 
+        "The mean capability maturity level of organizations having predominantly polyvalent / shared teams in ", 
         domain_title,
         " is not lower than average.",
         sep = ""),
       ha = paste(
-        "The mean capability maturity level of organizations having dedicated teams in ", 
+        "The mean capability maturity level of organizations having predominantly polyvalent / shared teams in ", 
         domain_title,
         " is lower than average.",
         sep = ""),
@@ -374,6 +374,145 @@ test_hypothesis_association_dedication_cmm = function(){
 }
 
 test_hypothesis_association_dedication_cmm();
+
+# ***************************************************
+# * hypothesis centralization association with capability maturity
+# ******************************************
+
+prepare_data_hypothesis_centralization_cmm_barchart = function(){
+  
+  plot_data = data.frame();
+  
+  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
+    domain_column = as.character(iamperf2020_q24_domains$X[domain_index]);
+    domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
+    # Hopefuly, domain indexes are identical.
+    centralization_column = as.character(iamperf2020_q21_domains$X[domain_index]);
+    for(centralization_index_dedicated in 1:nrow(iamperf2020_q21_centralization)){
+      centralization_level = as.character(iamperf2020_q21_centralization$Title[centralization_index_dedicated]);
+      centralization_filter = iamperf2020_survey[,centralization_column] == centralization_level;
+      facet_data = prepare_data_barchart_with_single_column_coercion(
+        iamperf2020_survey[
+          centralization_filter
+          ,domain_column
+          ], 
+        ordering_option = "level");
+      
+      facet_data$facet = domain_title;
+      facet_data$facet_2 = centralization_level;
+      facet_data$series = facet_data$category; #"Capability Maturity Level";
+      #facet_data$value = facet_data$count;
+      facet_data$value = facet_data$frequency;
+      
+      plot_data = rbind(
+        plot_data,
+        facet_data
+      );
+      
+    }
+  }
+  
+  plot_data = plyr::arrange(plot_data, facet, facet_2, category, series);
+  
+  # We want ordered factors
+  # factor order will be re-used in GGPlot2
+  plot_data$facet = factor(
+    plot_data$facet,
+    levels = c(
+      "IAM (general answer)", "Workforce IAM", "PAM / TAM",
+      "Customer IAM", "3rd Party IAM", "IoT IAM")
+  ); 
+  plot_data$facet_2 = factor(
+    plot_data$facet_2, 
+    levels = c( "Decentralized", "Hybrid", "Centralized"),
+    ordered = TRUE
+  );
+  
+  return(plot_data);
+}
+
+test_hypothesis_centralizations_cmm_derrick = function(){
+  
+  table_result = data.frame();
+  
+  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
+    domain_column = as.character(iamperf2020_q24_domains$X[domain_index]);
+    domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
+    # Hopefuly, domain indexes are identical.
+    centralization_column = as.character(iamperf2020_q21_domains$X[domain_index]);
+    centralization_index_dedicated = 3;
+    centralization_level_dedicated = as.character(iamperf2020_q21_centralization$Title[centralization_index_dedicated]);
+    centralization_filter_dedicated = iamperf2020_survey[,centralization_column] == centralization_level_dedicated;
+    centralization_index_shared = 1;
+    centralization_level_shared = as.character(iamperf2020_q21_centralization$Title[centralization_index_shared]);
+    centralization_filter_shared = iamperf2020_survey[,centralization_column] == centralization_level_shared;
+    
+    # PREDOMINANTLY DEDICATED
+    test_hypothesis_ordinal_greater(
+      h0 = paste(
+        "The mean capability maturity level of organizations having centralized teams in ", 
+        domain_title,
+        " is not higher than average.",
+        sep = ""),
+      ha = paste(
+        "The mean capability maturity level of organizations having centralized teams in ", 
+        domain_title,
+        " is higher than average.",
+        sep = ""),
+      sample_1 = as.numeric(ifelse(centralization_filter_dedicated, iamperf2020_survey[, domain_column], NA)),
+      sample_2 = as.numeric(iamperf2020_survey[, domain_column])
+    );
+    
+    cat(".................................................", "\n\n", sep = "");
+    
+    test_hypothesis_ordinal_greater(
+      h0 = paste(
+        "The mean capability maturity level of organizations having predominantly decentralized teams in ", 
+        domain_title,
+        " is not lower than average.",
+        sep = ""),
+      ha = paste(
+        "The mean capability maturity level of organizations having predominantly decentralized teams in ", 
+        domain_title,
+        " is lower than average.",
+        sep = ""),
+      sample_1 = as.numeric(ifelse(centralization_filter_shared, iamperf2020_survey[, domain_column], NA)),
+      sample_2 = as.numeric(iamperf2020_survey[, domain_column]),
+      alternative = "less"
+    );
+    
+    cat(".................................................", "\n\n", sep = "");
+    
+    
+  }
+  
+}
+
+plot_hypothesis_association_centralization_cmm_barchart = function(){
+  
+  plot_data = prepare_data_hypothesis_centralization_cmm_barchart();
+  
+  plot_barchart_gradients_dodged_series(
+    title = "Comparing Centralization with Capability Maturity",
+    subtitle = "This faceted bar chart shows the capability maturity distributions of survey answers organized by domains and level of centralization",
+    axis_x_title = "Domain",
+    axis_y_title = "Capability Maturity",
+    plot_data = plot_data, # Pre-summarized data with multiple series
+    # Data structure: series, category, count, label
+    legend_title = "Legend",
+    x_lim_min = NULL,
+    x_lim_max = NULL,
+    faceted = FALSE,
+    grid_faceted = TRUE,
+    geom_text_angle = 0,
+    geom_text_hjust = .5,
+    geom_text_vjust = -.3,
+    axis_text_x_blank = TRUE
+    #ncol = 3
+  );
+  
+}
+
 
 
 # **************************************

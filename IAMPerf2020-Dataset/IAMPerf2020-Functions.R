@@ -70,8 +70,12 @@ prepare_data_barchart_with_single_column_coercion = function(
   ordering_direction = 1 # 1 | -1
 )
 {
-  data_series_levels = levels(plot_data);
-  factor_is_ordered = is.ordered(plot_data);
+  data_series_levels = NULL;
+  for(column_index in 1: ncol(plot_data)){
+    data_series_levels = unique(c(data_series_levels, levels(plot_data[,column_index])));
+    # Minor "bug", this will yield the last ordering attribute from data frame columns
+    factor_is_ordered = is.ordered(plot_data[,column_index]);
+  }
   decreasing = ifelse(ordering_direction == 1, FALSE, TRUE);
   # Coerce to a single vector.
   plot_data = as.vector(unlist(plot_data)); 
@@ -79,7 +83,7 @@ prepare_data_barchart_with_single_column_coercion = function(
   plot_data = plot_data[!is.na(plot_data)];
   # Reapply original factors. Like this, if one factor has a count of 0, it will be maintained.
   plot_data = factor(plot_data, levels = data_series_levels, ordered = factor_is_ordered);
-  data_table = table(plot_data);
+  data_table = base::table(plot_data);
   data_count_label = paste("(", data_table, ")", sep = "");
   data_category = names(data_table);
   data_frequency = prop.table(data_table);
@@ -554,6 +558,9 @@ plot_stack_count = function(
   return(plot_object);
 }
 
+if(!require("processx")) install.packages("processx");
+if(!require("devtools")) install.packages("devtools");
+devtools::install_github("hms-dbmi/UpSetR", force = TRUE);
 plot_upset = function(
   title = NULL, 
   subtitle = NULL, 
@@ -577,9 +584,6 @@ plot_upset = function(
   #if(!require("ggplot2")) install.packages("ggplot2");
   #if(!require("viridis")) install.packages("viridis");
   #if(!require("UpSetR")) install.packages("UpSetR");
-  if(!require("processx")) install.packages("processx");
-  if(!require("devtools")) install.packages("devtools");
-  devtools::install_github("hms-dbmi/UpSetR", force = TRUE);
   #if(!require("ggstatsplot")) install.packages("ggstatsplot");
   
   # Retrieve the category full names from the factor labels.
