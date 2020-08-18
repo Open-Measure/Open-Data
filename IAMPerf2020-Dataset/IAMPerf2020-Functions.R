@@ -194,7 +194,31 @@ test_kendall_tau = function(
 
 }
 
-plot_statistical_test = function(test_results){
+plot_likertchart = function(
+  plot_data,
+  levels_number,
+  title,
+  subtitle,
+  legend
+){
+  
+  likert_data = likert::likert(plot_data, nlevels = 5);
+levels_number plot
+  _object = plot(
+    likert_data,
+    legend = "Caplegend  legend.position = "bottom",
+    #plot.percents = TRUE,
+    type = "bar",
+    colors = viridis_pal(direction = -1)(5)
+ levels_number  #R
+    ggplot2::ggtitle(
+      title,
+      subtitle = subtitle);
+  
+  return(plot_object);
+  
+  
+}lot_statistical_test = function(test_results){
   plot_object = 
     ggplot2::ggplot(data.frame(x = c(0,1), y = c(0,1))) + 
     ggplot2::aes(x, y) +
