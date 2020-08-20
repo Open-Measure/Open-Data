@@ -71,10 +71,15 @@ prepare_data_barchart_with_single_column_coercion = function(
 )
 {
   data_series_levels = NULL;
-  for(column_index in 1: ncol(plot_data)){
-    data_series_levels = unique(c(data_series_levels, levels(plot_data[,column_index])));
-    # Minor "bug", this will yield the last ordering attribute from data frame columns
-    factor_is_ordered = is.ordered(plot_data[,column_index]);
+  if(is.factor(plot_data)){
+    data_series_levels = levels(plot_data);
+    factor_is_ordered = is.ordered(plot_data);
+  } else if(is.data.frame(plot_data)) {
+    for(column_index in 1: ncol(plot_data)){
+      data_series_levels = unique(c(data_series_levels, levels(plot_data[,column_index])));
+      # Minor "bug", this will yield the last ordering attribute from data frame columns
+      factor_is_ordered = is.ordered(plot_data[,column_index]);
+    }
   }
   decreasing = ifelse(ordering_direction == 1, FALSE, TRUE);
   # Coerce to a single vector.
@@ -194,31 +199,41 @@ test_kendall_tau = function(
 
 }
 
-plot_likertchart = function(
-  plot_data,
+plot_likertchart = function()
+  lot_data,
   levels_number,
   title,
   subtitle,
-  legend
+  legend,
+  axis_x_title,
+  axis_y_title
 ){
   
-  likert_data = likert::likert(plot_data, nlevels = 5);
-levels_number plot
-  _object = plot(
+  likert_data = likert::likert(plot_data, nlevels = levels_number);
+  
+  plot_object = plot(
     likert_data,
-    legend = "Caplegend  legend.position = "bottom",
+    legend = legend,
+    legend.position = "bottom",
     #plot.percents = TRUE,
     type = "bar",
-    colors = viridis_pal(direction = -1)(5)
- levels_number  #R
-    ggplot2::ggtitle(
-      title,
-      subtitle = subtitle);
+    colors = viridis_pal(direction = -1)(levels_number)
+  ) + 
+    #ggplot2::ggtitle(
+    #  title,
+    #  subtitle = subtitle);
+    ggplot2::labs(
+      title = title,
+      subtitle = subtitle,
+      x = axis_x_title,
+      y = axis_y_title
+    );
   
   return(plot_object);
   
-  
-}lot_statistical_test = function(test_results){
+}
+
+plot_statistical_test = function(test_results){
   plot_object = 
     ggplot2::ggplot(data.frame(x = c(0,1), y = c(0,1))) + 
     ggplot2::aes(x, y) +
