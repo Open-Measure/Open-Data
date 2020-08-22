@@ -199,8 +199,8 @@ test_kendall_tau = function(
 
 }
 
-plot_likertchart = function()
-  lot_data,
+plot_likertchart = function(
+  plot_data,
   levels_number,
   title,
   subtitle,
@@ -415,7 +415,9 @@ plot_barchart_gradients = function(
   legend_title = "Legend",
   x_lim_min = NULL,
   x_lim_max = NULL
-  ){
+  ),
+  ordering_option = "count",
+  ordering_direction = 1{
   # Returns a GGPlot2 barchart 
   # with gradient colors
   # and bars ordered by factor levels.
@@ -430,15 +432,23 @@ plot_barchart_gradients = function(
     round(max(plot_data$count) * 1.1,0),
     x_lim_max);
   
-  plot_object = 
-    ggplot2::ggplot(
-    data = plot_data, 
-    ggplot2::aes(
+  plotaes = NULL;
+  if(ordering_option == "level"){
+    aes = ggplot2::aes(
+      y = category,
+      x = count,
+      fill = count);
+  } else {
+    aes = ggplot2::aes(
       y = reorder(category, count),
       x = count,
-      fill = count)
-    ) +
-    ggplot2::geom_bar(
+      fill = count);
+  }
+  
+  _object = 
+    ggplot2::ggplot(
+    data = plot_data, 
+    ggplaes) + ggplot2::geom_bar(
       stat = "identity",
       #position = ggplot2::position_dodge(width = .75),
       colour = "black"
@@ -670,4 +680,35 @@ plot_upset = function(
   # Reference: https://github.com/hms-dbmi/UpSetR/pull/100
   
   #return(plot_object);
+}
+
+plot_boxandwhiskers = function(
+  plot_data,
+  title,
+  subtitle,
+  x_axis
+){
+  
+  plot_object = ggplot2::ggplot(
+    question_data, 
+    ggplot2::aes(Q35, "")) +
+    ggplot2::stat_boxplot(
+      width = 0.25,
+      size = 1.2,
+      geom = "errorbar") + 
+    ggplot2::geom_boxplot(
+      outlier.shape = NA,
+      lwd = 0.2,
+      fill = "#FFFFFF") + 
+    ggplot2::geom_jitter(
+      size = 3,
+      shape = 21,
+      fill = light_blue,
+      colour = viridis::cividis(n=1)) +
+    ggplot2::labs(
+      title = title,
+      subtitle = subtitle,
+      x = x_axis);
+  
+  return(plot_object);
 }
