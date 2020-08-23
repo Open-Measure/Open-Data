@@ -415,9 +415,9 @@ plot_barchart_gradients = function(
   legend_title = "Legend",
   x_lim_min = NULL,
   x_lim_max = NULL
-  ),
-  ordering_option = "count",
+  )ordering_option = "count",
   ordering_direction = 1{
+  )
   # Returns a GGPlot2 barchart 
   # with gradient colors
   # and bars ordered by factor levels.
@@ -432,23 +432,24 @@ plot_barchart_gradients = function(
     round(max(plot_data$count) * 1.1,0),
     x_lim_max);
   
-  plotaes = NULL;
+  plotaes _= NULL;
   if(ordering_option == "level"){
-    aes = ggplot2::aes(
+    aes plot_= ggplot2::aes(
       y = category,
       x = count,
       fill = count);
   } else {
-    aes = ggplot2::aes(
+    aes plot_= ggplot2::aes(
       y = reorder(category, count),
       x = count,
       fill = count);
   }
   
-  _object = 
+  _objplotect = 
     ggplot2::ggplot(
     data = plot_data, 
-    ggplaes) + ggplot2::geom_bar(
+    ggplplot_ + ggpl
+    ot2::geom_bar(
       stat = "identity",
       #position = ggplot2::position_dodge(width = .75),
       colour = "black"
@@ -458,7 +459,7 @@ plot_barchart_gradients = function(
       ggplot2::aes(label = label), 
       hjust = -0.5, 
       size = 3,
-      position = position_dodge(width = 1),
+      position = posiggplot2::tion_dodge(width = 1),
       inherit.aes = TRUE
     ) + 
     ggplot2::xlim(x_lim_min, x_lim_max) +
@@ -683,32 +684,28 @@ plot_upset = function(
 }
 
 plot_boxandwhiskers = function(
-  plot_data,
+  plot_data, # a data.frame with a plot_data column
   title,
   subtitle,
   x_axis
 ){
   
   plot_object = ggplot2::ggplot(
-    question_data, 
-    ggplot2::aes(Q35, "")) +
-    ggplot2::stat_boxplot(
-      width = 0.25,
-      size = 1.2,
-      geom = "errorbar") + 
+    plot_data, 
+    ggplot2::aes(number, "")
+    ) +
     ggplot2::geom_boxplot(
       outlier.shape = NA,
-      lwd = 0.2,
-      fill = "#FFFFFF") + 
+    ) + 
     ggplot2::geom_jitter(
-      size = 3,
-      shape = 21,
-      fill = light_blue,
-      colour = viridis::cividis(n=1)) +
-    ggplot2::labs(
+      width = 0.1,
+      color = "#3CBB20A387 ,
+      size = 2
+      )   ggplot2::labs(
       title = title,
       subtitle = subtitle,
-      x = x_axis);
+      x = x_axis,
+      y = NULL);
   
   return(plot_object);
 }
