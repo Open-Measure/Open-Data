@@ -757,6 +757,84 @@ test_hypothesis_fs_greater_iammaturity = function(){
   );
 }
 
+library(dplyr);
 test_hypothesis_fs_greater_iammaturity()
+
+# **********************************************
+# * Hypothesis Positive Association between CMM and Best Practice Compliance *
+# **********************************************
+
+# Survey Questions 27, 28, 29
+
+prepare_data_q27q28q29_association_q24r1 = function(
+  na.rm = TRUE
+){
+  
+  # Group best practices-related columns
+  best_practices_columns = rbind(
+    iamperf2020_q27_best_practices,
+    iamperf2020_q28_best_practices,
+    iamperf2020_q29_best_practices
+  );
+  
+  # Format it in paired values
+  # That is: general CMM level versus best practice compliance level
+  paired_values = data.frame();
+  cmm_column = "Q24R1";
+  for(column_index in 1:nrow(best_practices_columns)){
+    best_practice_column = as.character(best_practices_columns[column_index,c("X")]);
+    paired_values_subset = iamperf2020_survey[
+      ,c(cmm_column, best_practice_column)];
+    colnames(paired_values_subset) = c("CMM", "BestPracticeCompliance");
+    paired_values = rbind(
+      paired_values,
+      paired_values_subset
+    );
+  }
+  
+  # Remove NAs
+  if(na.rm){
+    paired_values = paired_values[!is.na(paired_values$CMM),];
+    paired_values = paired_values[!is.na(paired_values$BestPracticeCompliance),];
+  }
+  
+  return(paired_values);
+}
+
+plot_q27q28q29_association_q24r1_bubblechart = function(){
+
+  paired_values = prepare_data_q27q28q29_association_q24r1(na.rm = TRUE);
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = paired_values %>% count(CMM, BestPracticeCompliance);
+  
+  colnames(group_counts) = c("x", "y", "z");
+  
+  plot_bubblechart(
+    plot_data = group_counts, 
+    title = "IAM General Capability Maturity Level vs Performance Measurement Best Practice Compliance (Bubble Chart)",
+    subtitle = "This bubble chart shows the relation between IAM general maturity level and degree of compliance with performance measurement best practices",
+    x_axis_title = "IAM General Capability Maturity Level",
+    y_axis_title = "Degree of compliance"
+    );
+
+  return(plot_object);
+}
+
+plot_q27q28q29_association_q24r1_bubblechart();
+#save_plot(
+#  plot_object = plot_q27q28q29_association_q24r1_bubblechart(),
+#  file_name = "IAMPerf2020-Q27-Q28-Q29-Association-Q24R1-BubbleChart.png",
+#  width = 11);
+
+test_q27q28q29_association_q24r1_kendalltau = function(){
+  
+  paired_values = prepare_data_q27q28q29_association_q24r1(na.rm = FALSE);
+  
+  test_kendall_tau(paired_values$CMM, paired_values$BestPracticeCompliance);
+}
+
+test_q27q28q29_association_q24r1_kendalltau();
+
 
 

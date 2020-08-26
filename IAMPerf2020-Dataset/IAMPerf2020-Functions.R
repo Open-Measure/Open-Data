@@ -217,7 +217,7 @@ plot_likertchart = function(
     legend.position = "bottom",
     #plot.percents = TRUE,
     type = "bar",
-    colors = viridis_pal(direction = -1)(levels_number)
+    colors = viridis::viridis_pal(direction = -1)(levels_number)
   ) + 
     #ggplot2::ggtitle(
     #  title,
@@ -414,10 +414,11 @@ plot_barchart_gradients = function(
   plot_data, # Pre-summarized data
   legend_title = "Legend",
   x_lim_min = NULL,
-  x_lim_max = NULL
-  )ordering_option = "count",
-  ordering_direction = 1{
-  )
+  x_lim_max = NULL,
+  ordering_option = "count",
+  ordering_direction = 1,
+  fill_aes = "count")
+  {
   # Returns a GGPlot2 barchart 
   # with gradient colors
   # and bars ordered by factor levels.
@@ -432,34 +433,53 @@ plot_barchart_gradients = function(
     round(max(plot_data$count) * 1.1,0),
     x_lim_max);
   
-  plotaes _= NULL;
-  if(ordering_option == "level"){
-    aes plot_= ggplot2::aes(
-      y = category,
-      x = count,
-      fill = count);
+  plot_aes = NULL;
+  if(fill_aes == "category"){
+    if(ordering_option == "level"){
+      plot_aes = ggplot2::aes(
+        y = category,
+        x = count,
+        fill = category);
+    } else {
+      plot_aes = ggplot2::aes(
+        y = reorder(category, count),
+        x = count,
+        fill = category);
+    }
   } else {
-    aes plot_= ggplot2::aes(
-      y = reorder(category, count),
-      x = count,
-      fill = count);
+    if(ordering_option == "level"){
+      plot_aes = ggplot2::aes(
+        y = category,
+        x = count,
+        fill = fill_aes);
+    } else {
+      plot_aes = ggplot2::aes(
+        y = reorder(category, count),
+        x = count,
+        fill = fill_aes);
+    }
   }
   
-  _objplotect = 
+  scale_fill_discrete = FALSE;
+  if(fill_aes == "category"){
+    scale_fill_discrete = TRUE;
+  }
+  
+  plot_object = 
     ggplot2::ggplot(
     data = plot_data, 
-    ggplplot_ + ggpl
-    ot2::geom_bar(
+    plot_aes) + 
+    ggplot2::geom_bar(
       stat = "identity",
       #position = ggplot2::position_dodge(width = .75),
       colour = "black"
     ) + 
-    viridis::scale_fill_viridis(discrete = FALSE, direction = -1) +
+    viridis::scale_fill_viridis(discrete = scale_fill_discrete, direction = -1) +
     ggplot2::geom_text(
       ggplot2::aes(label = label), 
       hjust = -0.5, 
       size = 3,
-      position = posiggplot2::tion_dodge(width = 1),
+      position = ggplot2::position_dodge(width = 1),
       inherit.aes = TRUE
     ) + 
     ggplot2::xlim(x_lim_min, x_lim_max) +
@@ -699,9 +719,10 @@ plot_boxandwhiskers = function(
     ) + 
     ggplot2::geom_jitter(
       width = 0.1,
-      color = "#3CBB20A387 ,
+      color = "#20A387",
       size = 2
-      )   ggplot2::labs(
+      ) +
+    ggplot2::labs(
       title = title,
       subtitle = subtitle,
       x = x_axis,
@@ -709,3 +730,33 @@ plot_boxandwhiskers = function(
   
   return(plot_object);
 }
+
+plot_bubblechart = function(
+  plot_data, # Structure: data.frame(x, y, z)
+  title,
+  sub_tite,
+  x_axis_title,
+  y_axis_title
+){
+  
+  # Su_object = ggpl
+    ot2::ggplot(
+    data   = grouplot_data  mapp  ing = ggplot2::aes(
+   x = x, y)
+  ) +
+        ggplot2::geom_point(ggplot2::aes(color = z, size = z)) + 
+    ggplot2::geom_text(ggplot2::aes(label = z)) +
+    viridis::scale_color_viridis(direction = -1) +
+    ggplot2::scale_size_continuous(range = c(0, 50), name="Frequency") +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::labs(
+   e = title,
+   title = sub_tite
+       ggplot2::xlab(x_axis_title) +
+    ggplot2::ylab(y_axis_title);
+
+  return(plot_object);
+}
+
+
+
