@@ -125,7 +125,7 @@ plot_q20_association_q24_facetedbarchart = function(){
     # Data structure: series, category, count, label
     legend_title = "Legend",
     x_lim_min = NULL,
-    x_lim_max = NULL,
+    x_lim_max = .6,
     faceted = FALSE,
     grid_faceted = TRUE,
     geom_text_angle = 0,
@@ -242,7 +242,14 @@ test_hypothesis_association_dedication_cmm();
 # * hypothesis centralization association with capability maturity
 # ******************************************
 
-prepare_data_hypothesis_centralization_cmm_barchart = function(){
+# Question Q21
+
+
+#      "IAM (general answer)", "Workforce IAM", "PAM / TAM",
+#      "Customer IAM", "3rd Party IAM", "IoT IAM")
+
+ 
+prepare_data_q21_association_q24 = function(){
   
   plot_data = data.frame();
   
@@ -251,8 +258,8 @@ prepare_data_hypothesis_centralization_cmm_barchart = function(){
     domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
     # Hopefuly, domain indexes are identical.
     centralization_column = as.character(iamperf2020_q21_domains$X[domain_index]);
-    for(centralization_index_dedicated in 1:nrow(iamperf2020_q21_centralization)){
-      centralization_level = as.character(iamperf2020_q21_centralization$Title[centralization_index_dedicated]);
+    for(centralization_index in 1:nrow(iamperf2020_q21_centralization)){
+      centralization_level = as.character(iamperf2020_q21_centralization$Title[centralization_index]);
       centralization_filter = iamperf2020_survey[,centralization_column] == centralization_level;
       facet_data = prepare_data_barchart_with_single_column_coercion(
         iamperf2020_survey[
@@ -294,77 +301,20 @@ prepare_data_hypothesis_centralization_cmm_barchart = function(){
   return(plot_data);
 }
 
-test_hypothesis_centralizations_cmm_derrick = function(){
+plot_q21_association_q24_facetedbarchart = function(){
   
-  table_result = data.frame();
-  
-  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
-    domain_column = as.character(iamperf2020_q24_domains$X[domain_index]);
-    domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
-    # Hopefuly, domain indexes are identical.
-    centralization_column = as.character(iamperf2020_q21_domains$X[domain_index]);
-    centralization_index_dedicated = 3;
-    centralization_level_dedicated = as.character(iamperf2020_q21_centralization$Title[centralization_index_dedicated]);
-    centralization_filter_dedicated = iamperf2020_survey[,centralization_column] == centralization_level_dedicated;
-    centralization_index_shared = 1;
-    centralization_level_shared = as.character(iamperf2020_q21_centralization$Title[centralization_index_shared]);
-    centralization_filter_shared = iamperf2020_survey[,centralization_column] == centralization_level_shared;
-    
-    # PREDOMINANTLY DEDICATED
-    test_hypothesis_ordinal_greater(
-      h0 = paste(
-        "The mean capability maturity level of organizations having centralized teams in ", 
-        domain_title,
-        " is not higher than average.",
-        sep = ""),
-      ha = paste(
-        "The mean capability maturity level of organizations having centralized teams in ", 
-        domain_title,
-        " is higher than average.",
-        sep = ""),
-      sample_1 = as.numeric(ifelse(centralization_filter_dedicated, iamperf2020_survey[, domain_column], NA)),
-      sample_2 = as.numeric(iamperf2020_survey[, domain_column])
-    );
-    
-    cat(".................................................", "\n\n", sep = "");
-    
-    test_hypothesis_ordinal_greater(
-      h0 = paste(
-        "The mean capability maturity level of organizations having predominantly decentralized teams in ", 
-        domain_title,
-        " is not lower than average.",
-        sep = ""),
-      ha = paste(
-        "The mean capability maturity level of organizations having predominantly decentralized teams in ", 
-        domain_title,
-        " is lower than average.",
-        sep = ""),
-      sample_1 = as.numeric(ifelse(centralization_filter_shared, iamperf2020_survey[, domain_column], NA)),
-      sample_2 = as.numeric(iamperf2020_survey[, domain_column]),
-      alternative = "less"
-    );
-    
-    cat(".................................................", "\n\n", sep = "");
-    
-    
-  }
-  
-}
-
-plot_hypothesis_association_centralization_cmm_barchart = function(){
-  
-  plot_data = prepare_data_hypothesis_centralization_cmm_barchart();
+  plot_data = prepare_data_q21_association_q24();
   
   plot_barchart_gradients_dodged_series(
-    title = "Comparing Centralization with Capability Maturity",
-    subtitle = "This faceted bar chart shows the capability maturity distributions of survey answers organized by domains and level of centralization",
+    title = "Decentralization versus Centralization",
+    subtitle = "This faceted bar chart shows the capability maturity level distributions of survey answers organized by domains and level of centralization",
     axis_x_title = "Domain",
     axis_y_title = "Capability Maturity",
     plot_data = plot_data, # Pre-summarized data with multiple series
     # Data structure: series, category, count, label
     legend_title = "Legend",
     x_lim_min = NULL,
-    x_lim_max = NULL,
+    x_lim_max = .5,
     faceted = FALSE,
     grid_faceted = TRUE,
     geom_text_angle = 0,
@@ -376,7 +326,27 @@ plot_hypothesis_association_centralization_cmm_barchart = function(){
   
 }
 
+plot_q21_association_q24_facetedbarchart();
+#save_plot(
+#  plot_object = plot_hypothesis_csp_greater_pammaturity(),
+#  file_name = "IAMPerf2020-Q21-Association-Q24-FacetedBarChart.png",
+#  width = 11);
 
+test_q21_association_q24_kendall = function(){
+  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
+    cat("\n", as.character(iamperf2020_q24_domains[domain_index, c("Title")]), ":\n");
+    # Retrieve survey data
+    domain_data = data.frame(iamperf2020_survey[paste0("Q24R", domain_index)], 
+                             iamperf2020_survey[paste0("Q21R", domain_index)]);
+    colnames(domain_data) = c("capability_maturity", "centralization");
+    # Remove NAs
+    domain_data = domain_data[!is.na(domain_data$capability_maturity),];
+    domain_data = domain_data[!is.na(domain_data$centralization),];
+    print(Kendall::Kendall(domain_data$capability_maturity, domain_data$centralization));
+  }
+}
+
+test_q21_association_q24_kendall()
 
 # **************************************
 # * hypothesis_csp_greater_pammaturity *

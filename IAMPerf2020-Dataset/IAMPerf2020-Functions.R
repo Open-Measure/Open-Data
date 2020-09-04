@@ -596,29 +596,28 @@ plot_stack_count = function(
   remove_na = TRUE,
   plot_data = NULL, # data.frame with columns "group", "category", "count", "label"
   legend_title = NULL
-){
+  )
+  {
   
-  plot_object = ggplot2::ggplot(
-    data = plot_data, 
-    ggplot2::aes(
-      y = reorder(group, category),
-      x = count,
-      label = label,
-      fill = category),
-  ) + 
-    ggplot2::scale_fill_brewer(palette = "Accent") +
+  plot_object = 
+    ggplot2::ggplot(
+      data = plot_data, 
+      mapping = ggplot2::aes(
+        x = count,
+        y = group)) + 
     ggplot2::geom_bar(
-      stat = "identity",
-      position = ggplot2::position_stack(),
-      colour = "black"
-    ) + 
-    ggplot2::geom_label(
-      stat = "identity",
-      #inherit.aes = TRUE,
-      #fill = "white",
-      position = ggplot2::position_stack(),
-      show.legend = FALSE
-    ) + ggplot2::labs(
+      stat = "identity", 
+      position = "staggplot2::position_stack()    mapping = ggplot2::aes(
+        fill = caterev(gory)) + 
+)    ggplot2::geom_label(
+      position = ggplot2::position_fillstackst = .5),
+      show.legend = FALSE,
+      fill = "white",
+      ggplot2::aes(
+        y = -grop,
+        label = label)) + 
+    viridis::scale_fill_viridis(discrete = TRUE) +
+, direction = -1    #ggpot2::labs(
       title = title,
       subtitle = subtitle,
       fill = legend_title,
