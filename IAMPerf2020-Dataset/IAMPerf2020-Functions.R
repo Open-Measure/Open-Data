@@ -71,6 +71,7 @@ prepare_data_barchart_with_single_column_coercion = function(
 )
 {
   data_series_levels = NULL;
+  factor_is_ordered = NULL;
   if(is.factor(plot_data)){
     data_series_levels = levels(plot_data);
     factor_is_ordered = is.ordered(plot_data);
@@ -417,7 +418,8 @@ plot_barchart_gradients = function(
   x_lim_max = NULL,
   ordering_option = "count",
   ordering_direction = 1,
-  fill_aes = "count")
+  fill_aes = "count",
+  scale_fill_discrete = FALSE)
   {
   # Returns a GGPlot2 barchart 
   # with gradient colors
@@ -451,16 +453,15 @@ plot_barchart_gradients = function(
       plot_aes = ggplot2::aes(
         y = category,
         x = count,
-        fill = fill_aes);
+        fill = count);
     } else {
       plot_aes = ggplot2::aes(
         y = reorder(category, count),
         x = count,
-        fill = fill_aes);
+        fill = count);
     }
   }
   
-  scale_fill_discrete = FALSE;
   if(fill_aes == "category"){
     scale_fill_discrete = TRUE;
   }
@@ -553,7 +554,7 @@ plot_barchart_gradients_dodged_series = function(
       hjust = geom_text_hjust, 
       size = 3,
       vjust = geom_text_vjust,
-      position = position_dodge(width = 1),
+      position = ggplot2::position_dodge(width = 1),
       inherit.aes = TRUE
     ) + 
     ggplot2::xlim(x_lim_min, x_lim_max) +
@@ -569,18 +570,18 @@ plot_barchart_gradients_dodged_series = function(
   if(axis_text_x_blank){
     plot_object = plot_object + ggplot2::theme(
       legend.position = "bottom",
-      axis.text.x = element_blank())
+      axis.text.x = ggplot2::element_blank())
   } else {
     plot_object = plot_object + ggplot2::theme(
       legend.position = "bottom")
   }
   
   if(faceted){
-    plot_object = plot_object + facet_wrap(~facet);
+    plot_object = plot_object + ggplot2::facet_wrap(~facet);
   }
 
   if(grid_faceted){
-    plot_object = plot_object + facet_grid(facet ~ facet_2);
+    plot_object = plot_object + ggplot2::facet_grid(facet ~ facet_2);
   }
   
   return(plot_object);
@@ -691,7 +692,8 @@ plot_upset = function(
     #nintersects = NULL, #30,
     mb.ratio = c(0.3, 0.7),
     keep.order = TRUE,
-    set_size.show	= TRUE);
+    set_size.show	= TRUE,
+    );
   
   # Reference: https://github.com/hms-dbmi/UpSetR/issues/76
   # grid::grid.text(title,x = 0.1, y=0.95, gp=gpar(fontsize=16))
@@ -734,29 +736,96 @@ plot_boxandwhiskers = function(
 plot_bubblechart = function(
   plot_data, # Structure: data.frame(x, y, z)
   title,
-  sub_tite,
+  subtitle,
   x_axis_title,
   y_axis_title
 ){
   
-  # Su_object = ggpl
-    ot2::ggplot(
-    data   = grouplot_data  mapp  ing = ggplot2::aes(
-   x = x, y)
-  ) +
-        ggplot2::geom_point(ggplot2::aes(color = z, size = z)) + 
+  plot_object = 
+    ggplot2::ggplot(
+      data = plot_data,
+      mapping = ggplot2::aes(x = x, y = y)
+      ) +
+    ggplot2::geom_point(ggplot2::aes(color = z, size = z)) + 
     ggplot2::geom_text(ggplot2::aes(label = z)) +
     viridis::scale_color_viridis(direction = -1) +
     ggplot2::scale_size_continuous(range = c(0, 50), name="Frequency") +
     ggplot2::theme(legend.position = "none") +
-    ggplot2::labs(
-   e = title,
-   title = sub_tite
-       ggplot2::xlab(x_axis_title) +
+    ggplot2::labs(title = title, subtitle = subtitle) +
+    ggplot2::xlab(x_axis_title) +
     ggplot2::ylab(y_axis_title);
 
   return(plot_object);
 }
 
-
+if(!require("stats")) install.packages("stats");
+if(!require("Partiallyoverlapping")) install.packages("Partiallyoverlapping");
+test_hypothesis_ordinal_greater = function(
+  original_hypothesis = NULL,
+  h0 = NULL,
+  ha = NULL,
+  sample_1,
+  sample_2,
+  alternative = "greater" # or "less".
+) {
+  
+  #cat("PARTIALLY OVERLAPPING SAMPLES T-TEST as per Derrick et al. (2017)\n")
+  # Bibliography:
+  # Derrick, B., White, P., 2018. Methods for comparing the responses from a Likert question, with paired observations and independent observations in each of two samples 10.
+  #cat("Execution of the statistical test using the 'Partover.test' function of the 'Partiallyoverlapping' R package.\n");
+  
+  #if(!is.null(original_hypothesis)){
+  #  cat("Original hypothesis:", original_hypothesis, "\n");
+  #}
+  # This transformation is acceptable because the Wilcoxon test accepts ordinal variables.
+  #cat("H0: ", h0, "\n");
+  #cat("Ha: ", ha, "\n"); 
+  
+  # "Naive" approache with Wilcoxon test. Later discarded.
+  #cat("WILCOXON SIGNED RANK SUM TEST (WSRST) \n\n");
+  ## Execute the Wilcoxon test.
+  #wilcox_test_outcome = wilcox.test(
+  #  x = as.numeric(sample_1), 
+  #  y = as.numeric(sample_2),
+  #  paired = TRUE, 
+  #  #exact = FALSE, # An exact p-value cannot be computed with zeroes
+  #  conf.int = TRUE,
+  #  conf.level = .95,
+  #  alternative = "greater" # See Ha above.
+  #  );
+  ## Print the test report.
+  #cat("Execute the statistical test using the 'wilcox.test' function of the 'stats' R package:\n")
+  #print(wilcox_test_outcome, row.names = FALSE);
+  ## Enrich the report with user-friendly outputs.
+  #if(wilcox_test_outcome$p.value < .05)
+  #  { 
+  #    cat("The test is statistically significant.\n\n"); 
+  #  } else {
+  #    cat("The test is not statistically significant.\n\n");
+  #  };
+  
+  derrick_test_outcome = Partiallyoverlapping::Partover.test(
+    x1 = as.numeric(sample_1), 
+    x2 = as.numeric(sample_2),
+    alternative = alternative,
+    conf.level = .95,
+    stacked = TRUE
+  );
+  
+  #print(derrick_test_outcome);
+  # Print a user-friendly version of the test outcome:
+  cat("Alternative:", alternative, "\n");
+  cat("T-statistic:", derrick_test_outcome$statistic, "\n");
+  cat("Degrees of freedom:", derrick_test_outcome$parameter, "\n");
+  cat("p-value:", derrick_test_outcome$p.value, "\n");
+  cat("Estimated difference:", derrick_test_outcome$estimate, "\n");
+  cat("CI:", derrick_test_outcome$conf.int, "\n");
+  if(derrick_test_outcome$p.value < .05)
+  { 
+    cat("The test is statistically significant.\n"); 
+  } else {
+    cat("The test is not statistically significant.\n");
+  };
+  
+}
 

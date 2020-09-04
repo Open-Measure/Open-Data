@@ -1,74 +1,4 @@
 
-if(!require("stats")) install.packages("stats");
-if(!require("Partiallyoverlapping")) install.packages("Partiallyoverlapping");
-test_hypothesis_ordinal_greater = function(
-  original_hypothesis = NULL,
-  h0,
-  ha,
-  sample_1,
-  sample_2,
-  alternative = "greater"
-) {
-  
-  cat("PARTIALLY OVERLAPPING SAMPLES T-TEST as per Derrick et al. (2017)\n")
-  # Bibliography:
-  # Derrick, B., White, P., 2018. Methods for comparing the responses from a Likert question, with paired observations and independent observations in each of two samples 10.
-  cat("Execution of the statistical test using the 'Partover.test' function of the 'Partiallyoverlapping' R package.\n");
-  
-  if(!is.null(original_hypothesis)){
-    cat("Original hypothesis:", original_hypothesis, "\n");
-  }
-  # This transformation is acceptable because the Wilcoxon test accepts ordinal variables.
-  cat("H0: ", h0, "\n");
-  cat("Ha: ", ha, "\n"); 
- 
-  # "Naive" approache with Wilcoxon test. Later discarded.
-  #cat("WILCOXON SIGNED RANK SUM TEST (WSRST) \n\n");
-  ## Execute the Wilcoxon test.
-  #wilcox_test_outcome = wilcox.test(
-  #  x = as.numeric(sample_1), 
-  #  y = as.numeric(sample_2),
-  #  paired = TRUE, 
-  #  #exact = FALSE, # An exact p-value cannot be computed with zeroes
-  #  conf.int = TRUE,
-  #  conf.level = .95,
-  #  alternative = "greater" # See Ha above.
-  #  );
-  ## Print the test report.
-  #cat("Execute the statistical test using the 'wilcox.test' function of the 'stats' R package:\n")
-  #print(wilcox_test_outcome, row.names = FALSE);
-  ## Enrich the report with user-friendly outputs.
-  #if(wilcox_test_outcome$p.value < .05)
-  #  { 
-  #    cat("The test is statistically significant.\n\n"); 
-  #  } else {
-  #    cat("The test is not statistically significant.\n\n");
-  #  };
-  
-  derrick_test_outcome = Partiallyoverlapping::Partover.test(
-    x1 = as.numeric(sample_1), 
-    x2 = as.numeric(sample_2),
-    alternative = alternative,
-    conf.level = .95,
-    stacked = TRUE
-    );
-  
-  #print(derrick_test_outcome);
-  # Print a user-friendly version of the test outcome:
-  cat("The value of the t-statistic:", derrick_test_outcome$statistic, "\n");
-  cat("The degrees of freedom for the test statistic:", derrick_test_outcome$parameter, "\n");
-  cat("The p-value for the test:", derrick_test_outcome$p.value, "\n");
-  cat("The estimated difference in the means:", derrick_test_outcome$estimate, "\n");
-  cat("A confidence interval for the mean difference appropriate to the specified alternative hypothesis:", derrick_test_outcome$conf.int, "\n\n");
-  if(derrick_test_outcome$p.value < .05)
-    { 
-      cat("The test is statistically significant.\n"); 
-    } else {
-      cat("The test is not statistically significant.\n");
-    };
-  
-}
-
 # **********************************************
 # * Hypothesis IAM CMM is normally distributed *
 # **********************************************
@@ -121,101 +51,16 @@ save_plot(
   file_name = "IAMPerf2020-Hypothesis-CMM-Normal-BarChart.png",
   width = 11);
 
-# ****************************************
-# * Comparing Team Specialization with Capability Maturity *
-# ****************************************
+# ******************************
+# * Association Q20 versus Q24 *
+# ******************************
 
 # Team Dedication: Survey Question Q20
 # CMM: Survey Question Q24
 
-# ARCHIVED: THIS FUNCTION IS NO LONGER USED
-# Approach used to generate Bubble Charts.
-prepare_facet_data_hypothesis_association_dedication_cmm = function(
-  column_index,
-  remove_na = TRUE,
-  summarize = TRUE){
-  column_1 = paste("Q20R", column_index, sep = ""); # Team Dedication
-  column_2 = paste("Q24R", column_index, sep = ""); # Capability Maturity
-  
-  data_subset = iamperf2020_survey[,c(column_1, column_2)];
-  colnames(data_subset) = c("TeamDedication", "CapabilityMaturity");
-  
-  if(remove_na){
-    # Remove NAs
-    data_subset = data_subset[
-      !is.na(data_subset$TeamDedication) & 
-        !is.na(data_subset$CapabilityMaturity),];
-  }
-  
-  if(summarize){
-    # Summarizes and counts 
-    data_subset = as.data.frame(table(data_subset));
-    
-    data_count_label = paste("(", data_subset$Freq, ")", sep = "");
-    data_count_total = sum(data_subset$Freq);
-    data_subset$Ratio = data_subset$Freq / data_count_total;
-    data_ratio_label = paste(rounded_ratios_with_largest_remainder(data_subset$Ratio, digits = 1), "%");
-    data_subset$Label = paste(data_ratio_label, data_count_label, sep = "\n");
-    
-    data_subset$Facet = as.character(
-      iamperf2020_q24_domains$Title[
-        iamperf2020_q24_domains$X == column_2]);
-  }
-
-  return(data_subset);
-}
-
-# ARCHIVED: THIS FUNCTION IS NO-LONGER USED.
-plot_hypothesis_association_dedication_cmm_bubblechart = function(){
-  
-  plot_data = 
-    rbind(
-      prepare_facet_data_hypothesis_association_dedication_cmm(1, TRUE, TRUE),
-      prepare_facet_data_hypothesis_association_dedication_cmm(2, TRUE, TRUE),
-      prepare_facet_data_hypothesis_association_dedication_cmm(3, TRUE, TRUE),
-      prepare_facet_data_hypothesis_association_dedication_cmm(4, TRUE, TRUE),
-      prepare_facet_data_hypothesis_association_dedication_cmm(5, TRUE, TRUE),
-      prepare_facet_data_hypothesis_association_dedication_cmm(6, TRUE, TRUE)
-    );
-  
-  plot_object <- ggplot(
-    plot_data, 
-    aes(
-      x = CapabilityMaturity, 
-      y = TeamDedication, 
-      label = Label,
-      size = Ratio, 
-      colour = Ratio
-    )
-  ) +
-    geom_point(
-      alpha = 1
-    ) +
-    geom_text(
-      color = "#000000", 
-      size = 3, 
-      nudge_x = -.43, 
-      angle = 90) +
-    theme(
-      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-      legend.position = "none"
-    ) +
-    facet_wrap(~ Facet, ncol = 2) +
-    scale_size(range = c(.1, 24), name = "Frequency") +
-    scale_color_viridis(discrete = FALSE, direction = -1) +
-    labs(
-      subtitle = "This bubble chart shows the association between team dedication and capability maturity ordinal categories.", 
-      x = "Capability Maturity", 
-      y = "Team Dedication", 
-      title = "Association between Team Dedication and Capability Maturity"
-    );
-  
-  return(plot_object);
-}
-
 # Enhanced approach used to generate faceted Bar Charts
 # along 2 dimensions: domain x specialization.
-prepare_data_hypothesis_specializations_cmm_barchart = function(){
+prepare_data_q20_association_q24 = function(){
   
   plot_data = data.frame();
   
@@ -267,6 +112,52 @@ prepare_data_hypothesis_specializations_cmm_barchart = function(){
   return(plot_data);
 }
 
+plot_q20_association_q24_facetedbarchart = function(){
+  
+  plot_data = prepare_data_q20_association_q24();
+  
+  plot_barchart_gradients_dodged_series(
+    title = "Specialization versus Capability Maturity",
+    subtitle = "This faceted bar chart shows the capability maturity level distributions of survey answers organized by domains and level of specialization",
+    axis_x_title = "Domain",
+    axis_y_title = "Capability Maturity",
+    plot_data = plot_data, # Pre-summarized data with multiple series
+    # Data structure: series, category, count, label
+    legend_title = "Legend",
+    x_lim_min = NULL,
+    x_lim_max = NULL,
+    faceted = FALSE,
+    grid_faceted = TRUE,
+    geom_text_angle = 0,
+    geom_text_hjust = .5,
+    geom_text_vjust = -.3,
+    axis_text_x_blank = TRUE
+    #ncol = 3
+  );
+  
+}
+
+plot_q20_association_q24_facetedbarchart();
+#save_plot(
+#  plot_object = plot_hypothesis_csp_greater_pammaturity(),
+#  file_name = "IAMPerf2020-Q20-Association-Q24-FacetedBarChart.png",
+#  width = 11);
+
+test_q20_association_q24_kendall = function(){
+  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
+    cat("\n", as.character(iamperf2020_q24_domains[domain_index, c("Title")]), ":\n");
+    # Retrieve survey data
+    domain_data = data.frame(iamperf2020_survey[paste0("Q24R", domain_index)], iamperf2020_survey[paste0("Q20R", domain_index)]);
+    colnames(domain_data) = c("capability_maturity", "specialization");
+    # Remove NAs
+    domain_data = domain_data[!is.na(domain_data$capability_maturity),];
+    domain_data = domain_data[!is.na(domain_data$specialization),];
+    print(Kendall::Kendall(domain_data$capability_maturity, domain_data$specialization));
+  }
+}
+
+test_q20_association_q24_kendall()
+
 test_hypothesis_specializations_cmm_derrick = function(){
   
   table_result = data.frame();
@@ -283,69 +174,41 @@ test_hypothesis_specializations_cmm_derrick = function(){
     specialization_level_shared = as.character(iamperf2020_q20_team_dedication$Title[specialization_index_shared]);
     specialization_filter_shared = iamperf2020_survey[,specialization_column] == specialization_level_shared;
     
-    # PREDOMINANTLY DEDICATED
+    cat("\n.................................................");
+    cat("\n\n", domain_title);
+    
+    # PREDOMINANTLY DEDICATED / SPECIALIZED
+    cat("\n\nSPECIALIZED\n\n");
     test_hypothesis_ordinal_greater(
-      h0 = paste(
-        "The mean capability maturity level of organizations having predominantly specialized / dedicated teams in ", 
-        domain_title,
-        " is not higher than average.",
-        sep = ""),
-      ha = paste(
-        "The mean capability maturity level of organizations having predominantly specialized / dedicated teams in ", 
-        domain_title,
-        " is higher than average.",
-        sep = ""),
       sample_1 = as.numeric(ifelse(specialization_filter_dedicated, iamperf2020_survey[, domain_column], NA)),
-      sample_2 = as.numeric(iamperf2020_survey[, domain_column])
+      sample_2 = as.numeric(iamperf2020_survey[, domain_column]),
+      alternative = "greater"
       );
-
-    cat(".................................................", "\n\n", sep = "");
+    
+    cat("\n");
     
     test_hypothesis_ordinal_greater(
-      h0 = paste(
-        "The mean capability maturity level of organizations having predominantly polyvalent / shared teams in ", 
-        domain_title,
-        " is not lower than average.",
-        sep = ""),
-      ha = paste(
-        "The mean capability maturity level of organizations having predominantly polyvalent / shared teams in ", 
-        domain_title,
-        " is lower than average.",
-        sep = ""),
+      sample_1 = as.numeric(ifelse(specialization_filter_dedicated, iamperf2020_survey[, domain_column], NA)),
+      sample_2 = as.numeric(iamperf2020_survey[, domain_column]),
+      alternative = "less"
+    );
+
+    cat("\n\nPOLYVALENT\n\n");
+    test_hypothesis_ordinal_greater(
+      sample_1 = as.numeric(ifelse(specialization_filter_shared, iamperf2020_survey[, domain_column], NA)),
+      sample_2 = as.numeric(iamperf2020_survey[, domain_column]),
+      alternative = "greater"
+    );
+    
+    cat("\n");
+    
+    test_hypothesis_ordinal_greater(
       sample_1 = as.numeric(ifelse(specialization_filter_shared, iamperf2020_survey[, domain_column], NA)),
       sample_2 = as.numeric(iamperf2020_survey[, domain_column]),
       alternative = "less"
       );
     
-    cat(".................................................", "\n\n", sep = "");
-    
-    
   }
-  
-}
-
-plot_hypothesis_association_dedication_cmm_barchart = function(){
-  
-  plot_data = prepare_data_hypothesis_specializations_cmm_barchart();
-  
-  plot_barchart_gradients_dodged_series(
-    title = "Comparing Specialization with Capability Maturity",
-    subtitle = "This faceted bar chart shows the capability maturity distributions of survey answers organized by domains and level of specialization",
-    axis_x_title = "Domain",
-    axis_y_title = "Capability Maturity",
-    plot_data = plot_data, # Pre-summarized data with multiple series
-    # Data structure: series, category, count, label
-    legend_title = "Legend",
-    x_lim_min = NULL,
-    x_lim_max = NULL,
-    faceted = FALSE,
-    grid_faceted = TRUE,
-    geom_text_angle = 0,
-    geom_text_hjust = .5,
-    geom_text_vjust = -.3,
-    axis_text_x_blank = TRUE
-    #ncol = 3
-  );
   
 }
 
@@ -760,6 +623,122 @@ test_hypothesis_fs_greater_iammaturity = function(){
 library(dplyr);
 test_hypothesis_fs_greater_iammaturity()
 
+
+
+# ******************************
+# * Association Q23 versus Q24 *
+# ******************************
+
+# IAM Strategic Strength: infered from Survey Question Q23
+# CMM: Survey Question Q24
+
+# Enhanced approach used to generate faceted Bar Charts
+# along 2 dimensions: domain x specialization.
+prepare_data_q23_association_q24 = function(){
+  
+  priorities_data = prepare_data_q23_priorities(remove_no_goals = FALSE);
+  strategic_levels = c("Weak", "Focused"); # We remove Unknown because the sample is far too small
+  
+  plot_data = data.frame();
+  
+  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
+    domain_column = as.character(iamperf2020_q24_domains$X[domain_index]);
+    domain_title = as.character(iamperf2020_q24_domains$Title[domain_index]);
+    # Hopefuly, domain indexes are identical.
+    
+    specialization_column = as.character(iamperf2020_q20_domains$X[domain_index]);
+    for(specialization_index_dedicated in 1:2){
+      strategic_strength = strategic_levels[specialization_index_dedicated];
+      strategic_filter = priorities_data[,"Strategy"] == strategic_strength;
+      facet_data = prepare_data_barchart_with_single_column_coercion(
+        iamperf2020_survey[
+          strategic_filter
+          ,domain_column
+          ], 
+        ordering_option = "level");
+      
+      facet_data$facet = domain_title;
+      facet_data$facet_2 = strategic_strength;
+      facet_data$series = facet_data$category; #"Capability Maturity Level";
+      #facet_data$value = facet_data$count;
+      facet_data$value = facet_data$frequency;
+      
+      plot_data = rbind(
+        plot_data,
+        facet_data
+      );
+      
+    }
+  }
+  
+  plot_data = plyr::arrange(plot_data, facet, facet_2, category, series);
+  
+  # We want ordered factors
+  # factor order will be re-used in GGPlot2
+  plot_data$facet = factor(
+    plot_data$facet,
+    levels = c(
+      "IAM (general answer)", "Workforce IAM", "PAM / TAM",
+      "Customer IAM", "3rd Party IAM", "IoT IAM")
+  ); 
+  plot_data$facet_2 = factor(
+    plot_data$facet_2, 
+    levels = c("Weak", "Focused"),
+    ordered = TRUE
+  );
+  
+  return(plot_data);
+}
+
+plot_q23_association_q24_facetedbarchart = function(){
+  
+  plot_data = prepare_data_q23_association_q24();
+  
+  plot_barchart_gradients_dodged_series(
+    title = "Strategic Strength versus Capability Maturity",
+    subtitle = "This faceted bar chart shows the capability maturity level distributions of survey answers organized by domains and IAM strategic strength",
+    axis_x_title = "Domain",
+    axis_y_title = "Capability Maturity",
+    plot_data = plot_data, # Pre-summarized data with multiple series
+    # Data structure: series, category, count, label
+    legend_title = "Legend",
+    x_lim_min = NULL,
+    x_lim_max = .5,
+    faceted = FALSE,
+    grid_faceted = TRUE,
+    geom_text_angle = 0,
+    geom_text_hjust = .5,
+    geom_text_vjust = -.3,
+    axis_text_x_blank = TRUE
+    #ncol = 3
+  );
+  
+}
+
+plot_q23_association_q24_facetedbarchart();
+
+
+test_q23_association_q24_kendall = function(){
+  
+  priorities_data = prepare_data_q23_priorities(remove_no_goals = FALSE);
+  
+  for(domain_index in 1:nrow(iamperf2020_q24_domains)){
+    cat("\n", as.character(iamperf2020_q24_domains[domain_index, c("Title")]), ":\n");
+    # Retrieve survey data
+    domain_data = data.frame(
+      iamperf2020_survey[paste0("Q24R", domain_index)], 
+      priorities_data$Strategy);
+    colnames(domain_data) = c("capability_maturity", "strategic_strength");
+    # Remove NAs
+    domain_data = domain_data[!is.na(domain_data$capability_maturity),];
+    domain_data = domain_data[!is.na(domain_data$strategic_strength),];
+    print(Kendall::Kendall(domain_data$capability_maturity, domain_data$strategic_strength));
+  }
+}
+
+test_q23_association_q24_kendall()
+
+
 # **********************************************
 # * Hypothesis Positive Association between CMM and Best Practice Compliance *
 # **********************************************
@@ -806,7 +785,7 @@ plot_q27q28q29_association_q24r1_bubblechart = function(){
   paired_values = prepare_data_q27q28q29_association_q24r1(na.rm = TRUE);
   
   # Summarizes the data to get counts by pair combinations
-  group_counts = paired_values %>% count(CMM, BestPracticeCompliance);
+  group_counts = paired_values %>% count("CMM", "BestPracticeCompliance");
   
   colnames(group_counts) = c("x", "y", "z");
   
@@ -837,4 +816,253 @@ test_q27q28q29_association_q24r1_kendalltau = function(){
 test_q27q28q29_association_q24r1_kendalltau();
 
 
+# **********************************************
+# * Hypothesis Positive Association between Indicator Role and Best Practice Compliance *
+# **********************************************
 
+# Survey Questions 27, 28, 29
+# Survey Question 26
+
+prepare_data_q27q28q29_association_q26 = function(
+  na.rm = TRUE
+){
+  
+  # Group best practices-related columns
+  best_practices_columns = rbind(
+    iamperf2020_q27_best_practices,
+    iamperf2020_q28_best_practices,
+    iamperf2020_q29_best_practices
+  );
+  
+  # Format it in paired values
+  # That is: indicator role versus best practice compliance level
+  # The trick here is that participants may play multiple roles!
+  paired_values = data.frame();
+  
+  for(role_column_index in 1:nrow(iamperf2020_q26_indicator_roles)){
+    role_column = as.character(
+      iamperf2020_q26_indicator_roles[role_column_index,c("X")]);
+    
+    for(best_practice_column_index in 1:nrow(best_practices_columns)){
+      best_practice_column = as.character(
+        best_practices_columns[best_practice_column_index,c("X")]);
+      paired_values_subset = iamperf2020_survey[
+        ,c(role_column, best_practice_column)];
+      colnames(paired_values_subset) = c("Role", "BestPracticeCompliance");
+      paired_values = rbind(
+        paired_values,
+        paired_values_subset
+      );
+    }
+    
+  }
+  
+  # Remove NAs
+  if(na.rm){
+    paired_values = paired_values[!is.na(paired_values$Role),];
+    paired_values = paired_values[!is.na(paired_values$BestPracticeCompliance),];
+  }
+  
+  return(paired_values);
+}
+
+library(dplyr);
+plot_q27q28q29_association_q26_bubblechart = function(){
+  
+  paired_values = prepare_data_q27q28q29_association_q26(na.rm = TRUE);
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = count(paired_values, Role, BestPracticeCompliance);
+  
+  colnames(group_counts) = c("x", "y", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = "Participant Indicator Role vs Performance Measurement Best Practice Compliance (Bubble Chart)",
+    subtitle = "This bubble chart shows the relation between the role played by survey participants in relation to IAM performance indicators and the degree of compliance with performance measurement best practices\nThe roles dimension is a non-exclusive categorical variable.",
+    x_axis_title = "Indicator Role",
+    y_axis_title = "Degree of compliance"
+  );
+  
+  return(plot_object);
+}
+
+plot_q27q28q29_association_q24r1_bubblechart();
+#save_plot(
+#  plot_object = plot_q27q28q29_association_q24r1_bubblechart(),
+#  file_name = "IAMPerf2020-Q27-Q28-Q29-Association-Q24R1-BubbleChart.png",
+#  width = 11);
+
+test_q27q28q29_association_q24r1_kendalltau = function(){
+  
+  paired_values = prepare_data_q27q28q29_association_q24r1(na.rm = FALSE);
+  
+  test_kendall_tau(paired_values$CMM, paired_values$BestPracticeCompliance);
+}
+
+test_q27q28q29_association_q24r1_kendalltau();
+
+#######
+#     #
+# Q30 #
+#     #
+#######
+
+prepare_data_q30_association_q24r1 = function(
+  na.rm = TRUE
+){
+  
+  # Format it in paired values
+  paired_values = iamperf2020_survey[,c("Q24R1", "Q30")];
+  
+  # Remove NAs
+  if(na.rm){
+    paired_values = paired_values[!is.na(paired_values$Q24R1),];
+    paired_values = paired_values[!is.na(paired_values$Q30),];
+  }
+  
+  return(paired_values);
+}
+
+plot_q30_association_q24r1_bubblechart = function(){
+  
+  paired_values = prepare_data_q30_association_q24r1(na.rm = TRUE);
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = plyr::count(paired_values, vars = c("Q24R1", "Q30"));
+  
+  colnames(group_counts) = c("x", "y", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = "IAM General Capability Maturity Level vs Indicator Automation (Bubble Chart)",
+    subtitle = "This bubble chart shows the relation between general IAM capability maturity level and indicator automation",
+    x_axis_title = "IAM General Capability Maturity Level",
+    y_axis_title = "Indicator Automation"
+  );
+  
+  return(plot_object);
+}
+
+plot_q30_association_q24r1_bubblechart()
+
+test_q30_association_q24r1_kendalltau = function(){
+  
+  paired_values = prepare_data_q30_association_q24r1(na.rm = FALSE);
+  test_kendall_tau(paired_values[,1], paired_values[,2]);
+}
+
+test_q30_association_q24r1_kendalltau();
+
+
+#######
+#     #
+# Q31 #
+#     #
+#######
+
+prepare_data_q31_association_q24r1 = function(
+  na.rm = TRUE
+){
+  
+  paired_values = data.frame();
+  for(column_index in 1:nrow(iamperf2020_q31_dimensions)){
+    columns_pair = c("Q24R1", as.character(iamperf2020_q31_dimensions[column_index, c("X")]));
+    cat(columns_pair, "\n");
+    dimension_values = iamperf2020_survey[,columns_pair];
+    colnames(dimension_values) = c("Q24R1", "Q31");
+    paired_values = rbind(
+      paired_values,
+      dimension_values
+      );
+  }
+
+  # Remove NAs
+  if(na.rm){
+    paired_values = paired_values[!is.na(paired_values$Q24R1),];
+    paired_values = paired_values[!is.na(paired_values$Q31),];
+  }
+  
+  return(paired_values);
+}
+
+plot_q31_association_q24r1_bubblechart = function(){
+  
+  paired_values = prepare_data_q31_association_q24r1(na.rm = TRUE);
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = plyr::count(paired_values, vars = c("Q24R1", "Q31"));
+  
+  colnames(group_counts) = c("x", "y", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = "IAM General Capability Maturity Level vs Indicator Coverage (Bubble Chart)",
+    subtitle = "This bubble chart shows the relationship between general IAM capability maturity level and indicator coverage.\nThe numbers in bubbles and the bubble size is the number of indicator dimensions. The survey question lists 10 indicator dimensions, in consequence each survey answer may provide between 0 and 10 indicator dimensions.",
+    x_axis_title = "IAM General Capability Maturity Level",
+    y_axis_title = "Coverage"
+  );
+  
+  return(plot_object);
+}
+
+plot_q31_association_q24r1_bubblechart()
+
+test_q31_association_q24r1_kendalltau = function(){
+  
+  paired_values = prepare_data_q31_association_q24r1(na.rm = FALSE);
+  test_kendall_tau(paired_values[,1], paired_values[,2]);
+}
+
+test_q31_association_q24r1_kendalltau();
+
+#######
+#     #
+# Q32 #
+#     #
+#######
+
+prepare_data_q32_association_q24r1 = function(
+  na.rm = TRUE
+){
+  
+  # Format it in paired values
+  paired_values = iamperf2020_survey[,c("Q24R1", "Q32")];
+  
+  # Remove NAs
+  if(na.rm){
+    paired_values = paired_values[!is.na(paired_values$Q24R1),];
+    paired_values = paired_values[!is.na(paired_values$Q32),];
+  }
+  
+  return(paired_values);
+}
+
+plot_q32_association_q24r1_bubblechart = function(){
+  
+  paired_values = prepare_data_q32_association_q24r1(na.rm = TRUE);
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = plyr::count(paired_values, vars = c("Q24R1", "Q32"));
+  
+  colnames(group_counts) = c("x", "y", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = "IAM General Capability Maturity Level vs Indicators Placement (Bubble Chart)",
+    subtitle = "This bubble chart shows the relation between general IAM capability maturity level and indicator placement (lagging / leading)",
+    x_axis_title = "IAM General Capability Maturity Level",
+    y_axis_title = "Indicator Placement"
+  );
+  
+  return(plot_object);
+}
+
+test_q32_association_q24r1_kendalltau = function(){
+  
+  paired_values = prepare_data_q32_association_q24r1(na.rm = FALSE);
+  colnames(paired_values) = c("CapabilityMaturity", "IndicatorPlacement");
+  test_kendall_tau(paired_values$CapabilityMaturity, paired_values$IndicatorPlacement);
+}
+
+test_q32_association_q24r1_kendalltau();
