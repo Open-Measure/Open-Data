@@ -607,23 +607,22 @@ plot_stack_count = function(
         y = group)) + 
     ggplot2::geom_bar(
       stat = "identity", 
-      position = "staggplot2::position_stack()    mapping = ggplot2::aes(
-        fill = caterev(gory)) + 
-)    ggplot2::geom_label(
-      position = ggplot2::position_fillstackst = .5),
+      position = ggplot2::position_stack(),
+      mapping = ggplot2::aes(fill = rev(category))) + 
+    ggplot2::geom_label(
+      position = ggplot2::position_stack(vjust = .5),
       show.legend = FALSE,
       fill = "white",
-      ggplot2::aes(
-        y = -grop,
-        label = label)) + 
-    viridis::scale_fill_viridis(discrete = TRUE) +
-, direction = -1    #ggpot2::labs(
+      ggplot2::aes(y = group, label = label)) +
+    viridis::scale_fill_viridis(discrete = TRUE, direction = -1) +
+    ggplot2::labs(
       title = title,
       subtitle = subtitle,
       fill = legend_title,
       x = axis_x_title,
-      y = axis_y_title
-    ) + ggplot2::theme(legend.position = "bottom");
+      y = axis_y_title) +
+    ggplot2::theme(
+      legend.position = "bottom");
   
   return(plot_object);
 }
