@@ -18,40 +18,40 @@ if(!require("RCurl")) install.packages("RCurl");
 iamperf2020_data_url = "https://raw.githubusercontent.com/Open-Measure/Open-Data/master/IAMPerf2020-Dataset/";
 
 # Load the data
-iamperf2020_survey <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020.csv")));
-iamperf2020_questions <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Questions.csv")));
-iamperf2020_q9_countries <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q9Countries.csv")));
-iamperf2020_q10_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q10Roles.csv")));
-iamperf2020_q11_experience_fields <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q11ExperienceFields.csv")));
-iamperf2020_q11_experience_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q11ExperienceLevels.csv")));
-iamperf2020_q13_org_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q13OrgRoles.csv")));
-iamperf2020_q14_org_targets <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q14OrgTargets.csv")));
-iamperf2020_q17_industrial_sectors <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q17IndustrialSectors.csv")));
-iamperf2020_q18_org_sizes <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q18OrgSizes.csv")));
-iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20Domains.csv")));
-iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q20TeamDedication.csv")));
-iamperf2020_q21_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q21Domains.csv")));
-iamperf2020_q21_centralization <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q21Centralization.csv")));
-iamperf2020_q22_reporting_lines <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q22ReportingLines.csv")));
-iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Goals.csv")));
-iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q23Priorities.csv")));
-iamperf2020_q24_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q24Domains.csv")));
-iamperf2020_q24_maturity_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q24MaturityLevels.csv")));
-iamperf2020_q26_indicator_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q26IndicatorRoles.csv")));
-iamperf2020_q27_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q27AgreementLevels.csv")));
-iamperf2020_q27_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q27BestPractices.csv")));
-iamperf2020_q28_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q28AgreementLevels.csv")));
-iamperf2020_q28_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q28BestPractices.csv")));
-iamperf2020_q29_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q29AgreementLevels.csv")));
-iamperf2020_q29_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q29BestPractices.csv")));
-iamperf2020_q30_automation_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q30IndicatorAutomation.csv")));
-iamperf2020_q31_coverage_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q31CoverageLevels.csv")));
-iamperf2020_q31_dimensions <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q31Dimensions.csv")));
-iamperf2020_q32_leading_vs_lagging_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q32LeadingVSLaggingLevels.csv")));
-iamperf2020_q38_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q38PolarQuestionLevels.csv")));
-iamperf2020_q39_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q39PolarQuestionLevels.csv")));
-iamperf2020_q40_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020Q40PolarQuestionLevels.csv")));
-iamperf2020_duplicate_responses <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020-DuplicateResponses.csv")));
+iamperf2020_survey <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Survey.csv")));
+iamperf2020_questions <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Questions.csv")));
+iamperf2020_q09_countries <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q09_Countries.csv")));
+iamperf2020_q10_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q10_Roles.csv")));
+iamperf2020_q11_experience_fields <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q11_ExperienceFields.csv")));
+iamperf2020_q11_experience_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q11_ExperienceLevels.csv")));
+iamperf2020_q13_org_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q13_OrgRoles.csv")));
+iamperf2020_q14_org_targets <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q14_OrgTargets.csv")));
+iamperf2020_q17_industrial_sectors <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q17_IndustrialSectors.csv")));
+iamperf2020_q18_org_sizes <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q18_OrgSizes.csv")));
+iamperf2020_q20_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q20_Domains.csv")));
+iamperf2020_q20_team_dedication <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q20_TeamDedication.csv")));
+iamperf2020_q21_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q21_Domains.csv")));
+iamperf2020_q21_centralization <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q21_Centralization.csv")));
+iamperf2020_q22_reporting_lines <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q22_ReportingLines.csv")));
+iamperf2020_q23_goals <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q23_Goals.csv")));
+iamperf2020_q23_priorities <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q23_Priorities.csv")));
+iamperf2020_q24_domains <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q24_Domains.csv")));
+iamperf2020_q24_maturity_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q24_MaturityLevels.csv")));
+iamperf2020_q26_indicator_roles <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q26_IndicatorRoles.csv")));
+iamperf2020_q27_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q27_AgreementLevels.csv")));
+iamperf2020_q27_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q27_BestPractices.csv")));
+iamperf2020_q28_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q28_AgreementLevels.csv")));
+iamperf2020_q28_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q28_BestPractices.csv")));
+iamperf2020_q29_agreement_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q29_AgreementLevels.csv")));
+iamperf2020_q29_best_practices <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q29_BestPractices.csv")));
+iamperf2020_q30_automation_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q30_IndicatorAutomation.csv")));
+iamperf2020_q31_coverage_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q31_CoverageLevels.csv")));
+iamperf2020_q31_dimensions <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q31_Dimensions.csv")));
+iamperf2020_q32_leading_vs_lagging_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q32_LeadingVSLaggingLevels.csv")));
+iamperf2020_q38_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q38_PolarQuestionLevels.csv")));
+iamperf2020_q39_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q39_PolarQuestionLevels.csv")));
+iamperf2020_q40_polar_question_levels <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_Q40_PolarQuestionLevels.csv")));
+iamperf2020_duplicate_responses <- read.csv (text = RCurl::getURL(paste0(iamperf2020_data_url, "IAMPerf2020_DuplicateResponses.csv")));
 
 # Clean the dataset from the duplicate entries identified manually.
 # Look at the Justification column for more information on the reason
@@ -63,8 +63,8 @@ iamperf2020_survey = iamperf2020_survey[
   ];
 
 # Q9: Apply nicely labeled and properly unordered factors.
-iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
-iamperf2020_survey$Q9B = factor(iamperf2020_survey$Q9B, levels = iamperf2020_q9_countries$CountryCode, labels = iamperf2020_q9_countries$CountryISO2, ordered = FALSE, exclude = NA);
+iamperf2020_survey$Q9 = factor(iamperf2020_survey$Q9, levels = iamperf2020_q09_countries$CountryCode, labels = iamperf2020_q09_countries$CountryISO2, ordered = FALSE, exclude = NA);
+iamperf2020_survey$Q9B = factor(iamperf2020_survey$Q9B, levels = iamperf2020_q09_countries$CountryCode, labels = iamperf2020_q09_countries$CountryISO2, ordered = FALSE, exclude = NA);
 
 # Q10: Apply labeled and properly unordered factors.
 for(column_counter in 1:nrow(iamperf2020_q10_roles)){
