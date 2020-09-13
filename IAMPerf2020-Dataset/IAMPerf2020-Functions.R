@@ -24,10 +24,115 @@ if(!require("scales")) install.packages("scales");
 if(!require("plyr")) install.packages("plyr");
 if(!require("likert")) install.packages("likert");
 #if(!require("HH")) install.packages("HH");
-if(!require("ggplot2")) install.packages("ggplot2");
 if(!require("RColorBrewer")) install.packages("RColorBrewer");
 
 # Functions Declarations
+
+# From the current version of I was getting the following error:
+# Error in Partiallyoverlapping::Partover.test(x1 = goal_data, x2 = reporting_line_data,  : 
+#                                                object 'p.value' not found
+Partiallyoverlapping_Partover_test_bugfixed = function(x1=NULL,x2=NULL,x3=NULL,x4=NULL, alternative="two.sided", conf.level=NULL, stacked=FALSE){
+    if (stacked==TRUE){#Separates observations into format required for stacked = FALSE.
+      if (length(x1)!=length(x2)) stop ("samples must be specified of equal lengths within the matrix for stacked=FALSE. Check structure of data") #The length of a and b must be equal. 
+      if ((!is.null(x3))|(!is.null(x4))) stop ("stacked = TRUE option requires only 2 specified vectors, one for each sample. Check structure of data")
+      a2<-rep(x1,2)
+      b2<-rep(x2,2)
+      grp<-rep(NA,(length(x1)*2))
+      stacked<-data.frame(a2,b2,grp) 
+      for (i in 1:(length (stacked$a2)/2)){if (!is.na(stacked$a2[i])) if (is.na(stacked$b2[i])) stacked$grp[i]<-"aunp"}
+      for (i in 1:(length (stacked$a2)/2)){if (!is.na(stacked$a2[i])) if (!is.na(stacked$b2[i])) stacked$grp[i]<-"apaired"}
+      for (i in 1:(length (stacked$a2)/2)){if (is.na(stacked$a2[i])) stacked$grp[i]<-"exclude"}  #  The "exclude" coding allows for observations with na on both samples to pass through the system without issue.
+      for (i in ((length(stacked$a2)/2)+1): length(stacked$a2)) if (is.na(stacked$a2[i])) if (!is.na(stacked$b2[i])) stacked$grp[i]<-"bunp"
+      for (i in ((length(stacked$a2)/2)+1): length(stacked$a2)) if (!is.na(stacked$a[i])) if (!is.na(stacked$b[i])) stacked$grp[i]<-"bpaired"
+      for (i in ((length(stacked$a2)/2)+1): length(stacked$a2)) if (is.na(stacked$b[i])) stacked$grp[i]<-"exclude"
+      x1<-stacked[stacked$grp=="aunp",1]
+      x2<-stacked[stacked$grp=="bunp",2]
+      x3<-stacked[stacked$grp=="apaired",1]
+      x4<-stacked[stacked$grp=="bpaired",2]}
+    
+    pairedobs<-paste(x3,x4)
+    pairedobs_a<-pairedobs[pairedobs=="1 1"]
+    a<-length(pairedobs_a)
+    pairedobs_b<-pairedobs[pairedobs=="1 0"]
+    b<-length(pairedobs_b)
+    pairedobs_c<-pairedobs[pairedobs=="0 1"]
+    c<-length(pairedobs_c)
+    pairedobs_d<-pairedobs[pairedobs=="0 0"]
+    d<-length(pairedobs_d)
+    ind_e<-x1[x1==1]
+    e<-length(ind_e)
+    ind_f<-x1[x1==0]
+    f<-length(ind_f)
+    ind_g<-x2[x2==1]
+    g<-length(ind_g)
+    ind_h<-x2[x2==0]
+    h<-length(ind_h)
+    
+    #Checks that vectors specified are of required length for partially overlapping samples t-test# 
+    if (is.null(x1)&&is.null(x2)) {stop ("no independent observations specified")}
+    if (length (x3)!=length(x4)) {stop ("paired observations not of same length")}
+    if (length (x3)<2) {stop ("not enough paired observations")}
+    
+    #Elements of the test 
+    
+    u<-(length(x3)+length(x1))
+    v<-(length(x4)+length(x2))    
+    p1bar<-(a+b+e)/u
+    p2bar<-(a+c+g)/v
+    pbar<-((u*p1bar)+(v*p2bar))/((2*length(x3))+length(x1)+length(x2))
+    if ((stats::sd(x3)==0)|(stats::sd(x4)==0)) {r<-0} else {r<-stats::cor (x3,x4)}  
+    
+    #test
+    estimate<-p1bar- p2bar
+    w<-pbar*(1-pbar)
+    noise<- sqrt(((w/u)+(w/v))-(2*r*(w*length(x3)/(u*v))))
+    statistic <- estimate / noise
+    
+    
+    #calculates p-value, with p-value fixed in extremes of no variability so that output does not give NaN or NA.
+    if (is.na(statistic)) {p.value<-1}
+    if (!is.na(statistic)) {if (xor((statistic == -Inf), (statistic == Inf))) p.value<-0 else{
+      if(alternative=="less"){
+        p.value<-stats::pnorm(statistic)
+      }
+      if(alternative=="greater"){
+        p.value<-stats::pnorm(-abs(statistic))
+      }
+      if(alternative=="two.sided"){
+        p.value<-2*stats::pnorm(-abs(statistic))
+      }
+    }}
+    
+    #gives relevant outputs dependent on whether confidence intervals are required
+    if(is.null(conf.level)){
+      theoutputs<-list(statistic=statistic,p.value=p.value,estimate=estimate)
+    }
+    if(!is.null(conf.level)){
+      if(alternative=="two.sided"){
+        con<-(1-((1-conf.level)/2))
+        critical_val<-stats::qnorm(con)
+        lower_int<-estimate-(critical_val*noise)
+        upper_int<-estimate+(critical_val*noise)
+      }
+      if(alternative=="less"){
+        con<-conf.level +((1-conf.level)/2)
+        critical_val<-stats::qnorm(conf.level)
+        lower_int<-(-Inf)
+        upper_int<-estimate+(critical_val*noise)
+      }
+      if(alternative=="greater"){
+        con<-conf.level +((1-conf.level)/2)
+        critical_val<-stats::qnorm(conf.level)
+        lower_int<-estimate-(critical_val*noise)
+        upper_int<-Inf
+      }
+      theoutputs<-list(statistic=statistic,p.value=p.value,estimate=estimate,conf.int=c(lower_int,upper_int))
+    }
+    return(theoutputs) 
+  }
+
+
+
 
 save_plot = function(
   plot_object, 
@@ -67,7 +172,8 @@ save_plot = function(
 prepare_data_barchart_with_single_column_coercion = function(
   plot_data, # The data series
   ordering_option = "count", # category | count | level
-  ordering_direction = 1 # 1 | -1
+  ordering_direction = 1, # 1 | -1
+  label_percent_value_sep = " " # The separator between the percentage and absolute value
 )
 {
   data_series_levels = NULL;
@@ -94,7 +200,7 @@ prepare_data_barchart_with_single_column_coercion = function(
   data_category = names(data_table);
   data_frequency = prop.table(data_table);
   data_frequency_label = paste(rounded_ratios_with_largest_remainder(data_frequency, digits = 1), "%");
-  data_label = paste(data_frequency_label, data_count_label, sep = " ");
+  data_label = paste(data_frequency_label, data_count_label, sep = label_percent_value_sep);
   data_count = as.vector(data_table);
   data_frame = data.frame(
     category = data_category,
@@ -500,6 +606,7 @@ plot_barchart_gradients = function(
   return(plot_object);
 }
 
+if(!require("ungeviz")) devtools::install_github("wilkelab/ungeviz");
 plot_barchart_gradients_dodged_series = function(
   title = NULL,
   subtitle = NULL,
@@ -512,12 +619,14 @@ plot_barchart_gradients_dodged_series = function(
   x_lim_max = NULL,
   faceted = FALSE,
   grid_faceted = FALSE,
+  label_wrap_width = 14,
   geom_text_angle = 90,
   geom_text_hjust = -.5,
   geom_text_vjust = 0,
   #,
   axis_text_x_blank = FALSE,
-  nrow = NULL
+  nrow = NULL,
+  display_pline = FALSE # Add a red pline from column pline_value for comparison purposes, typically with a mean
   #ncol = NULL
 ){
   # Returns a GGPlot2 barchart 
@@ -556,7 +665,22 @@ plot_barchart_gradients_dodged_series = function(
       vjust = geom_text_vjust,
       position = ggplot2::position_dodge(width = 1),
       inherit.aes = TRUE
-    ) + 
+    );
+  
+  if(display_pline){
+    # Reference: https://wilkelab.org/ungeviz/reference/geom_hpline.html
+    plot_object = plot_object +
+      ungeviz::geom_vpline(
+        mapping = ggplot2::aes(
+          x = pline_value, 
+          y = category,
+          group = 1),
+        size = 1,
+        color = "red"
+        );
+    };
+  
+  plot_object = plot_object +
     ggplot2::xlim(x_lim_min, x_lim_max) +
     ggplot2::coord_flip() +
     ggplot2::labs(
@@ -577,11 +701,17 @@ plot_barchart_gradients_dodged_series = function(
   }
   
   if(faceted){
-    plot_object = plot_object + ggplot2::facet_wrap(~facet);
+    # Reference for labeller: https://ggplot2.tidyverse.org/reference/labellers.html
+    plot_object = plot_object + ggplot2::facet_wrap(
+      ~facet,
+      labeller = ggplot2::label_wrap_gen(width = label_wrap_width));
   }
 
   if(grid_faceted){
-    plot_object = plot_object + ggplot2::facet_grid(facet ~ facet_2);
+    # Reference for labeller: https://ggplot2.tidyverse.org/reference/labellers.html
+    plot_object = plot_object + ggplot2::facet_grid(
+      facet ~ facet_2, 
+      labeller = ggplot2::label_wrap_gen(width = label_wrap_width));
   }
   
   return(plot_object);
@@ -718,9 +848,9 @@ plot_boxandwhiskers = function(
       outlier.shape = NA,
     ) + 
     ggplot2::geom_jitter(
-      width = 0.1,
-      color = "#20A387",
-      size = 2
+      width = 0,
+      color = "#440154",
+      size = 2.5
       ) +
     ggplot2::labs(
       title = title,
@@ -736,7 +866,9 @@ plot_bubblechart = function(
   title,
   subtitle,
   x_axis_title,
-  y_axis_title
+  y_axis_title,
+  scale_size_min = 1,
+  scale_size_max = 50
 ){
   
   plot_object = 
@@ -747,7 +879,7 @@ plot_bubblechart = function(
     ggplot2::geom_point(ggplot2::aes(color = z, size = z)) + 
     ggplot2::geom_text(ggplot2::aes(label = z)) +
     viridis::scale_color_viridis(direction = -1) +
-    ggplot2::scale_size_continuous(range = c(0, 50), name="Frequency") +
+    ggplot2::scale_size_continuous(range = c(scale_size_min, scale_size_max), name="Frequency") +
     ggplot2::theme(legend.position = "none") +
     ggplot2::labs(title = title, subtitle = subtitle) +
     ggplot2::xlab(x_axis_title) +
@@ -764,8 +896,8 @@ test_hypothesis_ordinal_greater = function(
   ha = NULL,
   sample_1,
   sample_2,
-  alternative = "greater" # or "less".
-) {
+  alternative = "greater",
+  print_output = TRUE){
   
   #cat("PARTIALLY OVERLAPPING SAMPLES T-TEST as per Derrick et al. (2017)\n")
   # Bibliography:
@@ -810,20 +942,23 @@ test_hypothesis_ordinal_greater = function(
     stacked = TRUE
   );
   
-  #print(derrick_test_outcome);
-  # Print a user-friendly version of the test outcome:
-  cat("Alternative:", alternative, "\n");
-  cat("T-statistic:", derrick_test_outcome$statistic, "\n");
-  cat("Degrees of freedom:", derrick_test_outcome$parameter, "\n");
-  cat("p-value:", derrick_test_outcome$p.value, "\n");
-  cat("Estimated difference:", derrick_test_outcome$estimate, "\n");
-  cat("CI:", derrick_test_outcome$conf.int, "\n");
-  if(derrick_test_outcome$p.value < .05)
-  { 
-    cat("The test is statistically significant.\n"); 
-  } else {
-    cat("The test is not statistically significant.\n");
+  if(print_output){
+    # Print a user-friendly version of the test outcome:
+    cat("Alternative:", alternative, "\n");
+    cat("T-statistic:", derrick_test_outcome$statistic, "\n");
+    cat("Degrees of freedom:", derrick_test_outcome$parameter, "\n");
+    cat("p-value:", derrick_test_outcome$p.value, "\n");
+    cat("Estimated difference:", derrick_test_outcome$estimate, "\n");
+    cat("CI:", derrick_test_outcome$conf.int, "\n");
+    if(derrick_test_outcome$p.value < .05)
+    { 
+      cat("The test is statistically significant.\n"); 
+    } else {
+      cat("The test is not statistically significant.\n");
+    };
   };
+ 
+  return(derrick_test_outcome); 
   
 }
 

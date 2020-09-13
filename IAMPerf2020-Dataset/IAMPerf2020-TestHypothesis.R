@@ -8,8 +8,13 @@
 prepare_data_hypothesis_iam_cmm_normal = function(){
   
   plot_data = data.frame();
+  pline_data = NULL;
   
   for(column_index in 1:nrow(iamperf2020_q24_domains)){
+    
+#    for(level_index in 1:nrow(iamperf2020_q24_maturity_levels)){
+#      
+#    }
     
     facet_data = prepare_data_barchart_with_single_column_coercion(
       iamperf2020_survey[,as.character(iamperf2020_q24_domains$X[column_index])], 
@@ -18,6 +23,13 @@ prepare_data_hypothesis_iam_cmm_normal = function(){
     facet_data$facet = iamperf2020_q24_domains$Title[column_index];
     facet_data$series = facet_data$category; # "Capability Maturity Level";
     facet_data$value = facet_data$count;
+    
+    #if(column_index == 1){ 
+    #  pline_data = facet_data$value; 
+    #  facet_data$pline_value = rep(NA, nrow(facet_data));
+    #} else {
+    #  facet_data$pline_value = pline_data;
+    #  }
 
     plot_data = rbind(
       plot_data,
@@ -28,28 +40,33 @@ prepare_data_hypothesis_iam_cmm_normal = function(){
 
   plot_data = plyr::arrange(plot_data, facet, category, series);
     
+  # Put capability levels on two lines for better readability of the chart.
+  plot_data$category = plyr::mapvalues(
+    plot_data$category, 
+    from = c("Level 1: Initial", "Level 2: Repeatable", "Level 3: Defined", "Level 4: Managed", "Level 5: Optimized"), 
+    to = c("Level 1\nInitial", "Level 2\nRepeatable", "Level 3\nDefined", "Level 4\nManaged", "Level 5\nOptimized"))
+  
   return(plot_data);
 }
 
 plot_hypothesis_cmm_normal = function(){
   
   plot_object = plot_barchart_gradients_dodged_series(
-    title = "Distributions of Capability Maturity Levels for IAM and its Sub-Domains",
+    title = "Distributions of Capability Maturity Levels for IAM and its Sub-Domains (Faceted Bar Chart)",
     subtitle = "This faceted bar chart shows the distributions of capability maturity levels for IAM and its sub-domains",
     axis_x_title = "Distribution of Sample Answers (Percentage)",
     axis_y_title = "Capability Maturity Levels",
     plot_data = prepare_data_hypothesis_iam_cmm_normal(), 
     legend_title = "Legend",
-    faceted = TRUE
+    faceted = TRUE,
+    display_pline = FALSE
   );
   
   return(plot_object);
 }
 
-save_plot(
-  plot_object = plot_hypothesis_cmm_normal(),
-  file_name = "IAMPerf2020-Hypothesis-CMM-Normal-BarChart.png",
-  width = 11);
+# File: IAMPerf2020_Q24_CapabilityMaturity_FacetedBarChart.png
+plot_hypothesis_cmm_normal();
 
 # ******************************
 # * Association Q20 versus Q24 *
@@ -347,6 +364,239 @@ test_q21_association_q24_kendall = function(){
 }
 
 test_q21_association_q24_kendall()
+
+
+# ****************************
+# * Association Q22 with Q23 *
+# ****************************
+
+# Q22: Reporting Line
+# Q23: Goals & Priorities
+
+prepare_data_q22_association_q23 = function(){
+  
+  plot_data = data.frame();
+  
+  for(goal_index in 1:nrow(iamperf2020_q23_goals)){
+    goal_column = as.character(iamperf2020_q23_goals$X[goal_index]);
+    goal_title = as.character(iamperf2020_q23_goals$Title[goal_index]);
+    
+    # Compute goal statistics, making it possible to add the goal mean "pline"
+    goal_data = prepare_data_barchart_with_single_column_coercion(
+      iamperf2020_survey[,goal_column], 
+      ordering_option = "level",
+      label_percent_value_sep = "\n");
+    
+    for(reporting_line_index in 1:nrow(iamperf2020_q22_reporting_lines)){
+      reporting_line_column = as.character(iamperf2020_q22_reporting_lines$X[reporting_line_index]);
+      reporting_line_title = as.character(iamperf2020_q22_reporting_lines$Title[reporting_line_index]);
+      reporting_line_filter = !is.na(iamperf2020_survey[,reporting_line_column]);
+      
+      # Remove the CFO from the graph because no IAM manager 
+      # has this reporting line in the sample, resulting in empty charts. 
+      # Remove also the "Other" option to avoid readability confusion with NAs etc.
+      if(reporting_line_title != "CFO" & reporting_line_title != "Other"){
+      
+        facet_data = prepare_data_barchart_with_single_column_coercion(
+          iamperf2020_survey[reporting_line_filter,goal_column], 
+          ordering_option = "level",
+          label_percent_value_sep = "\n");
+
+        facet_data$facet = reporting_line_title;
+        facet_data$facet_2 = goal_title;
+        facet_data$series = facet_data$category;
+        facet_data$value = facet_data$frequency;
+        facet_data$pline_value = goal_data$frequency; # Comparison with goal mean
+        
+        plot_data = rbind(plot_data, facet_data);
+      
+      }
+    }
+  }
+
+  plot_data = plyr::arrange(plot_data, facet, facet_2, category, series);
+  
+  # Finalize factors
+  plot_data$facet = factor(
+    plot_data$facet,
+    levels = as.character(iamperf2020_q22_reporting_lines$Title),
+    ordered = FALSE
+  ); 
+  plot_data$facet_2 = factor(
+    plot_data$facet_2, 
+    levels = as.character(iamperf2020_q23_goals$Title),
+    ordered = FALSE
+  );
+  
+  return(plot_data);
+}
+
+plot_q22_association_q23_facetedbarchart = function(){
+  
+  plot_data = prepare_data_q22_association_q23();
+  
+  plot_barchart_gradients_dodged_series(
+    title = "Reporting Line versus Goal Priorities",
+    subtitle = "This faceted bar chart shows the distribution of priorities by goals and reporting lines.\nReporting lines are non-exclusive categories, for instance a subset of IAM managers report both to the CISO and CIO.\nThe red lines show the mean per goal (including N/A or \"other\" reporting line).",
+    axis_x_title = "Reporting Line",
+    axis_y_title = "Goals",
+    plot_data = plot_data, # Pre-summarized data with multiple series
+    # Data structure: series, category, count, label
+    legend_title = "Legend",
+    x_lim_min = NULL,
+    x_lim_max = 1,
+    faceted = FALSE,
+    grid_faceted = TRUE,
+    geom_text_angle = 0,
+    geom_text_hjust = .5,
+    geom_text_vjust = -.3,
+    axis_text_x_blank = TRUE,
+    display_pline = TRUE
+    #ncol = 3
+  );
+  
+}
+
+plot_q22_association_q23_facetedbarchart();
+#save_plot(
+#  plot_object = plot_hypothesis_csp_greater_pammaturity(),
+#  file_name = "IAMPerf2020-Q22-Association-Q23-FacetedBarChart.png",
+#  width = 11);
+
+test_q22_association_q23 = function(){
+  
+  # Doing a Kendall test
+  
+  test_data = data.frame();
+  
+  for(goal_index in 1:nrow(iamperf2020_q23_goals)){
+    goal_column = as.character(iamperf2020_q23_goals$X[goal_index]);
+    goal_title = as.character(iamperf2020_q23_goals$Title[goal_index]);
+    #cat("Goal: ", goal_title, " (", goal_column, ")\n");
+    
+    # Retrieve goal transversal data
+    goal_data = as.numeric(iamperf2020_survey[,goal_column] == "Primary Goal");
+    goal_mean = mean(goal_data, na.rm = TRUE);
+    
+    for(reporting_line_index in 1:nrow(iamperf2020_q22_reporting_lines)){
+      reporting_line_column = as.character(iamperf2020_q22_reporting_lines$X[reporting_line_index]);
+      reporting_line_title = as.character(iamperf2020_q22_reporting_lines$Title[reporting_line_index]);
+      
+      # Remove the CFO from the graph because no IAM manager 
+      # has this reporting line in the sample, resulting in empty charts. 
+      # Remove also the "Other" option to avoid readability confusion with NAs etc.
+      if(reporting_line_title != "CFO" & reporting_line_title != "Other"){
+
+        #cat("  Reporting Line: ", reporting_line_title, " (", reporting_line_column, ")\n");
+        reporting_line_filter = !is.na(iamperf2020_survey[,reporting_line_column]);
+        reporting_line_data = ifelse(reporting_line_filter, goal_data, NA);
+        reporting_line_mean = mean(reporting_line_data, na.rm = TRUE);
+        
+        # Test direction
+        alternative_hypothesis = "greater";
+        if(reporting_line_mean < goal_mean){
+          alternative_hypothesis = "less";  
+        }
+        
+        # Too many warnings in a the loop will stop the script.
+        # Since we only take results where p-value is below threshold,
+        # we may safely suppress errors and warnings to only collect valid results.
+        #try({suppressWarnings({
+        
+        interesting = FALSE;
+        stat_test_dichotomous = NULL;
+        #dicho_result =  data.frame(
+        dicho_statistic = NA;
+        dicho_p_value = NA;
+        dicho_estimate = NA;
+        dicho_conf_int = NA;
+        #);
+        #chi_test = NULL;
+        #chi_result =  data.frame(
+        #  chi_statistic = NA,
+        #  chi_doff = NA,
+        #  chi_p_value = NA
+        #);
+        
+        #try({
+          stat_test_dichotomous = Partiallyoverlapping::Prop.test(
+            x1 = reporting_line_data,
+            x2 = goal_data,
+            alternative = alternative_hypothesis,
+            stacked = TRUE,
+            conf.level = .95
+            );
+          #if(stat_test_dichotomous$p.value <= .1) { 
+          #  interesting = TRUE;
+          #  dicho_result =  data.frame(
+              dicho_statistic = stat_test_dichotomous$statistic;
+              dicho_p_value = stat_test_dichotomous$p.value;
+              dicho_estimate = stat_test_dichotomous$estimate;
+              dicho_conf_int = paste(stat_test_dichotomous$conf.int, collapse = " - ");
+          #  );
+          #  };
+        #});
+        significant = FALSE;
+        if(!is.na(dicho_p_value)){
+          if(dicho_p_value <= .05){
+            significant = TRUE;
+          }
+        }
+        
+        #try({
+        #  chi_test = stats::chisq.test(
+        #    x = goal_data, #factor(goal_data, levels = c(0,1), ordered = TRUE, exclude = NA),
+        #    y = reporting_line_data, #factor(reporting_line_data, levels = c(0,1), ordered = TRUE, exclude = NA),
+        #    );
+        #  if(chi_test$p.value <= .05) { 
+        #    interesting = TRUE;
+        #    chi_result =  data.frame(
+        #      chi_statistic = chi_test$statistic,
+        #      chi_doff = chi_test$parameter,
+        #      chi_p_value = chi_test$p.value
+        #    );
+        #  };
+        #});
+        
+        #if(interesting){
+
+          test_data = bind_rows(
+            test_data,
+            #bind_cols(
+              data.frame(
+                goal = goal_title, 
+                goal_mean = goal_mean,
+                reporting_line = reporting_line_title,
+                reporting_line_mean = reporting_line_mean,
+                mean_diff = abs(goal_mean - reporting_line_mean),
+                alternative_hypothesis = alternative_hypothesis,
+                significant = significant,
+                dicho_p_value = dicho_p_value,
+                dicho_statistic = dicho_statistic,
+                dicho_estimate = dicho_estimate,
+                dicho_conf_int = paste("'", dicho_conf_int, sep = "")
+                ),
+              #dicho_result #,
+              #chi_result
+              #)
+            );
+        
+        #}
+          #})}, silent = FALSE);
+
+      }
+    }
+  }
+  
+  return(test_data);
+  
+}
+
+test_data = test_q22_association_q23();
+View(test_data);
+#writeClipboard(test_data);
+write.table(test_data, "clipboard", sep="\t", row.names=FALSE);
+
 
 # **************************************
 # * hypothesis_csp_greater_pammaturity *
@@ -1036,3 +1286,305 @@ test_q32_association_q24r1_kendalltau = function(){
 }
 
 test_q32_association_q24r1_kendalltau();
+
+
+# ******************************
+# * Association Q35 versus Q23 *
+# ******************************
+
+# Number of indicators Q35
+# Goals: Survey Question Q23
+test_q35_association_q23 = function(){
+
+  cat("Association between number of primary goals and number of indicators\n");
+  
+  goals_data = prepare_data_q23_priorities(remove_no_goals = FALSE);
+  
+  # If no goal priorities were provided in the answer, this is equivalent to NA.
+  primary_goals = ifelse(goals_data$AllPriorities > 0, goals_data$PrimaryGoal, NA);
+
+  test_kendall_tau(
+    primary_goals,
+    iamperf2020_survey$Q35);
+  
+  cat("\nAssociation between number of primary and secondary goals and number of indicators\n");
+
+  # If no goal priorities were provided in the answer, this is equivalent to NA.
+  all_goals = ifelse(goals_data$AllPriorities > 0, goals_data$PrimaryGoal + goals_data$SecondaryGoal, NA);
+    
+  test_kendall_tau(
+    all_goals,
+    iamperf2020_survey$Q35);
+  
+  }
+
+plot_q35_association_q23_primary_goals = function(){
+  
+  goals_data = prepare_data_q23_priorities(remove_no_goals = FALSE);
+  
+  q23_na_filter = goals_data$AllPriorities >0;
+  q35_na_filter = !is.na(iamperf2020_survey$Q35);
+  full_filter = q23_na_filter & q35_na_filter;
+  
+  paired_values = data.frame(
+    Goals = goals_data[full_filter, c("PrimaryGoal")],
+    IndicatorsNumber = iamperf2020_survey[full_filter, c("Q35")]);
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = dplyr::count(paired_values, Goals, IndicatorsNumber);
+  
+  colnames(group_counts) = c("y", "x", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = "Primary Goals Number vs Indicators Number (Bubble Chart)",
+    subtitle = "This bubble chart shows the relation between the number of primary goals with the number of indicators",
+    x_axis_title = "Indicators Number",
+    y_axis_title = "Primary Goals Number",
+    scale_size_min = 7,
+    scale_size_max = 10
+  );
+  
+  return(plot_object);
+  
+}
+
+# File: IAMPerf2020_Q35_Association_Q23_PrimaryGoals_BubbleChart.png
+plot_q35_association_q23_primary_goals();
+
+plot_q35_association_q23_all_goals = function(){
+  
+  goals_data = prepare_data_q23_priorities(remove_no_goals = FALSE);
+  
+  q23_na_filter = goals_data$AllPriorities >0;
+  q35_na_filter = !is.na(iamperf2020_survey$Q35);
+  full_filter = q23_na_filter & q35_na_filter;
+  
+  paired_values = data.frame(
+    Goals = goals_data[full_filter, c("PrimaryGoal")] + goals_data[full_filter, c("SecondaryGoal")],
+    IndicatorsNumber = iamperf2020_survey[full_filter, c("Q35")]);
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = dplyr::count(paired_values, Goals, IndicatorsNumber);
+  
+  colnames(group_counts) = c("y", "x", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = "Goals Number vs Indicators Number (Bubble Chart)",
+    subtitle = "This bubble chart shows the relation between the number of primary and secondary goals with the number of indicators",
+    x_axis_title = "Indicators Number",
+    y_axis_title = "Goals Number",
+    scale_size_min = 7,
+    scale_size_max = 10
+  );
+  
+  return(plot_object);
+  
+}
+
+# File: IAMPerf2020_Q35_Association_Q23_AllGoals_BubbleChart.png
+plot_q35_association_q23_all_goals();
+
+# ******************************
+# * Association Q35 versus Q24 *
+# ******************************
+
+# Number of indicators Q35
+# CMM: Survey Question Q24
+
+prepare_data_q35_association_q24 = function(){
+  
+  plot_data = data.frame(
+    capability_maturity = iamperf2020_survey$Q24R1,
+    indicators_number = iamperf2020_survey$Q35
+    );
+
+  # Remove NAs
+  plot_data = plot_data[
+    !is.na(plot_data$capability_maturity)
+    ,];
+  plot_data = plot_data[
+    !is.na(plot_data$indicators_number)
+    ,];
+  
+  plot_data$indicator_best_practice = ifelse(
+    plot_data$indicators_number < 3, "Less", ifelse(
+      plot_data$indicators_number > 15, "More", "Best Practice"
+      )
+    );
+  
+  plot_data = plot_data[,c("capability_maturity", "indicator_best_practice")];
+
+  plot_data = plyr::count(plot_data);
+
+  # We want ordered factors
+  # factor order will be re-used in GGPlot2
+  plot_data$capability_maturity = factor(
+    plot_data$capability_maturity,
+    as.character(iamperf2020_q24_maturity_levels$Title),
+    ordered = TRUE
+  );
+  plot_data$indicator_best_practice = factor(
+    plot_data$indicator_best_practice,
+    c("Less", "Best Practice", "More"),
+    ordered = TRUE
+  );
+  
+  colnames(plot_data) = c("category", "group", "count");
+  
+  # Reshaping
+  plot_data$label = NA;
+  #plot_data$count = plot_data$value;
+
+  return(plot_data);
+}
+
+plot_q35_association_q24_facetedbarchart = function(){
+  
+  plot_data = prepare_data_q35_association_q24();
+  
+  plot_object = plot_stack_count(
+    title = "Indicators Number versus Capability Maturity",
+    subtitle = "This bar chart shows the distribution of indicators number per capability maturity level",
+    axis_x_title = "Count",
+    axis_y_title = "Indicators Number",
+    plot_data = plot_data # Pre-summarized data with multiple series
+    # Data structure: series, category, count, label
+    #legend_title = "Legend",
+    #x_lim_min = NULL,
+    #x_lim_max = .5,
+    #faceted = FALSE,
+    #grid_faceted = FALSE,
+    #geom_text_angle = 0,
+    #geom_text_hjust = .5,
+    #geom_text_vjust = -.3,
+    #axis_text_x_blank = TRUE
+    #ncol = 3
+  );
+  
+  plot_object + ggplot2::coord_flip();
+  
+}
+
+# File: IAMPerf2020_Q35_Association_Q24R1_BarChart.png
+plot_q35_association_q24_facetedbarchart();
+
+
+# ******************************
+# * Association Q35 versus Q30 *
+# ******************************
+
+# Number of indicators Q35
+# Indicators Automation Q30
+
+plot_q30_association_q35_bubblechart = function(){
+  
+  paired_values = data.frame(
+    Q35 = iamperf2020_survey$Q35, 
+    Q30 = iamperf2020_survey$Q30);
+  
+  # Remove NAs
+  paired_values = paired_values[
+    !is.na(paired_values$Q30) & !is.na(paired_values$Q35)
+    ,];
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = dplyr::count(paired_values, paired_values$Q35, paired_values$Q30);
+  
+  colnames(group_counts) = c("x", "y", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = "Indicators Number vs Degree of Automation (Bubble Chart)",
+    subtitle = "This bubble chart shows the relation between the number of indicators and their degree of automation",
+    x_axis_title = "Indicators number",
+    y_axis_title = "Degree of automation",
+    scale_size_min = 5,
+    scale_size_max = 15
+  );
+  
+  return(plot_object);
+}
+
+# File: IAMPerf2020_Q30_Association_Q35_BubbleChart.png
+
+test_q30_association_q35_kendalltau = function(){
+  
+  test_kendall_tau(
+    iamperf2020_survey$Q35, 
+    iamperf2020_survey$Q30);
+}
+
+test_q30_association_q35_kendalltau();
+
+
+# ******************************
+# * Association Q35 versus Q31 *
+# ******************************
+
+# Number of indicators Q35
+# Indicators Coverage Q31
+
+plot_q31_association_q35_bubblechart = function(){
+  
+  paired_values = data.frame();
+  
+  for(column_index in 1:nrow(iamperf2020_q31_dimensions)){
+    column_name = as.character(iamperf2020_q31_dimensions$X[column_index]);
+    paired_values = rbind(
+      paired_values,
+      data.frame(
+      Q35 = iamperf2020_survey[,"Q35"], 
+      Q31 = iamperf2020_survey[,column_name])
+      );
+  }
+  
+  # Remove NAs
+  paired_values = paired_values[
+    !is.na(paired_values$Q31) & !is.na(paired_values$Q35)
+    ,];
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = dplyr::count(paired_values, paired_values$Q35, paired_values$Q31);
+  
+  colnames(group_counts) = c("x", "y", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = "Indicators Coverage vs Indicators Number (Bubble Chart)",
+    subtitle = "This bubble chart shows the relation between the coverage of indicators over a small subset of dimensions and the number of indicators actively used by organizations",
+    x_axis_title = "Indicators Number",
+    y_axis_title = "Indicators Coverage",
+    scale_size_min = 5,
+    scale_size_max = 15
+  );
+  
+  return(plot_object);
+}
+
+plot_q31_association_q35_bubblechart();
+# File: IAMPerf2020_Q31_Association_Q35_BubbleChart.png
+
+test_q31_association_q35_kendalltau = function(){
+
+  paired_values = data.frame();
+  
+  for(column_index in 1:nrow(iamperf2020_q31_dimensions)){
+    column_name = as.character(iamperf2020_q31_dimensions$X[column_index]);
+    paired_values = rbind(
+      paired_values,
+      data.frame(
+        Q35 = iamperf2020_survey[,"Q35"], 
+        Q31 = iamperf2020_survey[,column_name])
+    );
+  }
+  
+  test_kendall_tau(
+    paired_values$Q35, 
+    paired_values$Q31);
+}
+
+test_q31_association_q35_kendalltau();
+
+
