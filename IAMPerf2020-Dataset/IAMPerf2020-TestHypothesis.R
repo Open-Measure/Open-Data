@@ -845,9 +845,9 @@ test_hypothesis_fs_greater_iammaturity()
 
 
 
-# ******************************
-# * Association Q23 versus Q24 *
-# ******************************
+# ************************************************
+# * Association Q23 versus Q24 - STRATEGIC FOCUS *
+# ************************************************
 
 # IAM Strategic Strength: infered from Survey Question Q23
 # CMM: Survey Question Q24
@@ -957,6 +957,84 @@ test_q23_association_q24_kendall = function(){
 }
 
 test_q23_association_q24_kendall()
+
+
+# **********************************************
+# * Association Q23 versus Q24R1 - GOAL COVERAGE *
+# **********************************************
+
+# IAM Goal Coverage: infered from Survey Question Q23
+# CMM: Survey Question Q24R1
+
+prepare_data_q23_association_q24r1_goalcoverage = function(
+  na.rm = TRUE
+  ,priority = "PrimaryGoal" #SecondaryGoal, #NiceToHave, #NoGoal
+){
+  
+  q23_priorities = prepare_data_q23_priorities(remove_no_goals = FALSE);
+  
+  # Format it in paired values
+  paired_values = data.frame(
+    Q24R1 = iamperf2020_survey$Q24R1,
+    PriorityCount = q23_priorities[,priority]
+    );
+  
+  # Remove NAs
+  if(na.rm){
+    paired_values = paired_values[!is.na(paired_values$Q24R1),];
+    paired_values = paired_values[!is.na(paired_values$PriorityCount),];
+  }
+  
+  return(paired_values);
+}
+
+plot_q23_association_q24r1_goalcoverage_bubblechart = function(
+  priority = "PrimaryGoal", #SecondaryGoal, #NiceToHave, #NoGoal
+  priority_title = priority_title
+){
+  
+  paired_values = prepare_data_q23_association_q24r1_goalcoverage(
+    na.rm = TRUE,
+    priority = priority);
+  
+  # Summarizes the data to get counts by pair combinations
+  group_counts = plyr::count(paired_values, vars = c("Q24R1", "PriorityCount"));
+  
+  colnames(group_counts) = c("x", "y", "z");
+  
+  plot_object = plot_bubblechart(
+    plot_data = group_counts, 
+    title = paste0("IAM General Capability Maturity Level vs ", priority_title, " (Bubble Chart)"),
+    subtitle = paste0("Relation between general IAM capability maturity level and the number of ", priority_title, "."),
+    x_axis_title = "IAM General Capability Maturity Level",
+    y_axis_title = paste0(priority_title, "Number"),
+    scale_size_min = 5,
+    scale_size_max = 12
+  );
+  
+  return(plot_object);
+}
+
+plot_q23_association_q24r1_goalcoverage_bubblechart(priority = "PrimaryGoal", priority_title = "Primary Goals");
+plot_q23_association_q24r1_goalcoverage_bubblechart(priority = "SecondaryGoal", priority_title = "Secondary Goals");
+plot_q23_association_q24r1_goalcoverage_bubblechart(priority = "NiceToHave", priority_title = "Nice to Haves");
+plot_q23_association_q24r1_goalcoverage_bubblechart(priority = "NotAGoal", priority_title = "Non-Goals");
+
+test_q23_association_q24_goalcoverage_kendall = function(){
+  
+  q23_priorities = prepare_data_q23_priorities(remove_no_goals = FALSE);
+  cat("PRIMARY GOALS \n");
+  test_kendall_tau(iamperf2020_survey$Q24R1, q23_priorities$PrimaryGoal);
+  cat("\nSECONDARY GOALS \n");
+  test_kendall_tau(iamperf2020_survey$Q24R1, q23_priorities$SecondaryGoal);
+  cat("\nSNICE TO HAVES \n");
+  test_kendall_tau(iamperf2020_survey$Q24R1, q23_priorities$NiceToHave);
+  cat("\nNON-GOALS \n");
+  test_kendall_tau(iamperf2020_survey$Q24R1, q23_priorities$NotAGoal);
+}
+
+test_q23_association_q24_goalcoverage_kendall()
+
 
 
 # **********************************************
