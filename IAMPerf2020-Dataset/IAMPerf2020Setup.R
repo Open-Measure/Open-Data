@@ -9,7 +9,7 @@
 # Set console to English
 Sys.setenv(LANG = "en");
 
-print("Loading the IAMPerf2020 environment...");
+#print("Loading the IAMPerf2020 environment...");
 
 # Packages
 if(!require("RCurl")) install.packages("RCurl");
@@ -292,7 +292,7 @@ iamperf2020_survey$Q40 = factor(iamperf2020_survey$Q40, levels = iamperf2020_q40
 # N/A
 
 
-print("IAMPerf2020 environment loaded.")
+#print("IAMPerf2020 environment loaded.")
 
 # References
 #

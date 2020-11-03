@@ -1350,7 +1350,9 @@ plot_q32_association_q24r1_bubblechart = function(){
     title = "IAM General Capability Maturity Level vs Indicators Placement (Bubble Chart)",
     subtitle = "This bubble chart shows the relation between general IAM capability maturity level and indicator placement (lagging / leading)",
     x_axis_title = "IAM General Capability Maturity Level",
-    y_axis_title = "Indicator Placement"
+    y_axis_title = "Indicator Placement",
+    scale_size_min = 10,
+    scale_size_max = 50
   );
   
   return(plot_object);
